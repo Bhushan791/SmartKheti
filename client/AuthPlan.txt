@@ -1,0 +1,102 @@
+📘 SmartKheti – users App (Auth & Profile Module) Documentation
+🔍 Overview
+The users app handles authentication and profile management for the main user type: Farmers in the SmartKheti ecosystem. Designed with Nepalese rural users in mind, the system prioritizes simplicity, trust, and mobile-first usability.
+
+🧱 User Types
+Role	Auth Required	Description
+Farmer	✅ Yes	Main user; uploads, posts, uses all features
+Buyer	❌ No	Can only browse marketplace; no login needed
+Admin	✅ Optional	System management (future feature)
+
+🔐 Auth Method
+Phone Number (📱) as the unique username
+
+6-digit PIN (🔑) instead of complex passwords (farmer-friendly)
+
+JWT Authentication using djangorestframework-simplejwt
+
+🧾 Registration Fields
+Field	Type	Required	Notes
+First Name	CharField	✅	-
+Last Name	CharField	✅	-
+Phone Number	CharField	✅	Unique identifier
+Password1 / 2	CharField	✅	6-digit PIN
+Citizenship No.	CharField	Optional	For identity/trust
+Country	CharField	✅	Default: Nepal
+Province	CharField	✅	Dropdown suggested
+District	CharField	✅	Dropdown suggested
+Municipality/Ward	CharFields	✅	For weather & analytics
+Preferred Language	ChoiceField	Optional	Nepali / English
+Profile Photo	ImageField	Optional	-
+
+🧑‍💻 Endpoints Summary
+Method	Endpoint	Description	Auth Required
+POST	/api/users/register/	Register as farmer	❌
+POST	/api/users/login/	Login (get JWT token)	❌
+GET	/api/users/profile/	View own profile	✅
+PUT	/api/users/profile/	Update own profile	✅
+
+⚙️ Tech Stack
+Custom User Model (extends AbstractUser)
+
+Custom UserManager (handles phone-based registration)
+
+SimpleJWT for token-based authentication
+
+DRF Serializers for validation
+
+DRF Views: Class-based (APIView) for modular logic
+
+✅ Development Plan
+Create users app and register in project
+
+Create custom user model with all required fields
+
+Set AUTH_USER_MODEL in settings
+
+Setup UserManager to handle custom user creation
+
+Create serializers:
+
+RegisterSerializer (validates PIN match)
+
+LoginSerializer (returns JWT)
+
+ProfileSerializer (get/update info)
+
+Build API Views:
+
+Registration
+
+Login
+
+Profile View/Update
+
+Integrate SimpleJWT and configure settings
+
+Create and include URL routes
+
+Migrate, test via Postman
+
+🧪 Testing Strategy
+Use Postman to test all endpoints:
+
+Register
+
+Send POST to /api/users/register/ with valid data
+
+Validate phone uniqueness, PIN match
+
+Login
+
+POST /api/users/login/ with phone + PIN
+
+Receive JWT access and refresh tokens
+
+Profile
+
+Use Authorization: Bearer <token>
+
+GET /api/users/profile/ to view info
+
+PUT to update info (name, location, photo, etc.)
