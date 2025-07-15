@@ -1,0 +1,54 @@
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
+
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, phone, password=None, **extra_fields):
+        if not phone:
+            raise ValueError("Phone number is required")
+        user = self.model(phone=phone, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('first_name', 'Admin') 
+        extra_fields.setdefault('last_name', '')        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(phone, password, **extra_fields)
+
+class User(AbstractUser):
+    username = None  # Remove default username field
+    phone = PhoneNumberField(unique=True, region='NP')
+
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    citizenship_number = models.CharField(max_length=20, blank=True, null=True)
+
+    province = models.CharField(max_length=50, blank=True, null=True)
+    district = models.CharField(max_length=50, blank=True, null=True)
+    municipality = models.CharField(max_length=100, blank=True, null=True)
+    ward_number = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    profile_photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    preferred_language = models.CharField(
+        max_length=10,
+        choices=[('en', 'English'), ('np', 'Nepali')],
+        default='np'
+    )
+
+    USERNAME_FIELD = 'phone'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.phone})"
