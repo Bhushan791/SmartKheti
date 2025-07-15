@@ -16,7 +16,7 @@ class DiseaseInfo(models.Model):
 class Product(models.Model):
     disease = models.ForeignKey(DiseaseInfo, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='products/')
+    image = models.ImageField(upload_to='mediafiles/products/')
 
     def __str__(self):
         return self.name
@@ -27,6 +27,6 @@ from django.conf import settings
 
 class DetectionRecord(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='detections/')
+    image = models.ImageField(upload_to='mediafiles/detections/')
     detected_disease = models.CharField(max_length=100)
     detected_at = models.DateTimeField(auto_now_add=True)
