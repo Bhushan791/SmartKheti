@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
+from django.utils import timezone
+from datetime import timedelta
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -52,3 +55,23 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.phone})"
+
+
+
+
+
+class OTPrequest(models.Model):
+    phone = PhoneNumberField(region='NP')
+    otp= models.CharField(max_length=6)
+    created_at= models.DateTimeField(auto_now_add=True)
+
+
+
+    def is_valid(self):
+        expiration_time= self.created_at+ timedelta(minutes=2)
+        current_time = timezone.now()
+        if current_time<expiration_time:
+            return True
+        else:
+            return False
+        
