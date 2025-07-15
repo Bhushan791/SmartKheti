@@ -1,0 +1,12 @@
+Tomato_Healthy
+Tomato_SeptoriaLeafSpot
+Tomato_YellowLeafCurl
+Potato_Healthy
+Potato_LateBlight
+Potato_EarlyBlight
+Maize_Healthy
+Maize_GrayLeafSpot
+Maize_CommonRust
+Rice_Healthy
+Rice_BrownSpot
+Rice_BacterialLeafBlight
