@@ -20,7 +20,7 @@ class RegisterUserView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             self.perform_create(serializer)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'msg': "account created"}, status=status.HTTP_201_CREATED)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 #Profile View

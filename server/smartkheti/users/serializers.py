@@ -33,3 +33,13 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+    
+    def validate_phone(self, value):
+            if User.objects.filter(phone=value).exists():
+                raise serializers.ValidationError("Account with this phone number already registered")
+            return value
+    
+    def validate_citizenship_number(self, value):
+        if User.objects.filter(citizenship_number= value):
+            raise serializers.ValidationError("CItizenship Number already rigistered")
+        return value
