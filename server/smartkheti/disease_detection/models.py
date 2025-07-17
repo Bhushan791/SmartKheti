@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 class DiseaseInfo(models.Model):
@@ -23,7 +24,6 @@ class Product(models.Model):
 
 
 
-from django.conf import settings
 
 class DetectionRecord(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

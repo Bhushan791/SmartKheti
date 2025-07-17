@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'users',
     'disease_detection',
     'weather',
+    'marketplace'
 ]
 
 
