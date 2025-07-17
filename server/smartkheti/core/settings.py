@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'disease_detection',
+    'weather',
 ]
 
 

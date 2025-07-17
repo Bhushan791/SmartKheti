@@ -41,7 +41,7 @@ class User(AbstractUser):
     municipality = models.CharField(max_length=100, blank=True, null=True)
     ward_number = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    profile_photo = models.ImageField(upload_to='media/profiles/', null=True, blank=True)
+    profile_photo = models.ImageField(upload_to='mediafiles/profiles/', null=True, blank=True)
     preferred_language = models.CharField(
         max_length=10,
         choices=[('en', 'English'), ('np', 'Nepali')],
