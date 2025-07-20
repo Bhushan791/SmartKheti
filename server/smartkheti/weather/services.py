@@ -52,7 +52,7 @@ def _try_geocode(address):
         'q': cleaned_address,
         'format': 'json',
         'limit': 3,  # Get more results to pick the best one
-        'countrycodes': 'np',  # Restrict to Nepal
+        'countrycodes': 'np',  
         'addressdetails': 1,
     }
     

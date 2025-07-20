@@ -8,4 +8,5 @@ urlpatterns = [
 
     path('admin/detections/', AdminDetectionListAPIView.as_view(), name='admin-detections'),
 
+
 ]

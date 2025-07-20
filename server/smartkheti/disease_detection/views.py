@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 import tflite_runtime.interpreter as tflite 
 
+
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'disease_detection', 'AI_Model', 'model_unquant.tflite')
 LABELS_PATH = os.path.join(settings.BASE_DIR, 'disease_detection', 'AI_Model', 'labels.txt')
 
@@ -119,3 +120,14 @@ class AdminDetectionListAPIView(ListAPIView):
     serializer_class = DetectionRecordSerializer
     queryset = DetectionRecord.objects.all().order_by('-detected_at')
     
+
+
+
+
+
+
+
+
+
+
+

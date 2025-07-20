@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .services import fetch_forecast, get_coordinates_from_address, reverse_geocode_improved
 import logging
+from .models import SavedLocation
+from .serializers import SavedLocationSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -152,4 +154,57 @@ class LocationTestView(APIView):
                 "ward_number": getattr(user, 'ward_number', None),
             },
             "geocoding_tests": test_results
+        })
+    
+
+
+
+
+
+
+
+
+
+class SavedLocationListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        locations = SavedLocation.objects.filter(user=request.user)
+        serializer = SavedLocationSerializer(locations, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = SavedLocationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+class WeatherFromSavedLocationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        location_id = request.query_params.get('location_id')
+
+        try:
+            location = SavedLocation.objects.get(id=location_id, user=request.user)
+        except SavedLocation.DoesNotExist:
+            return Response({"error": "Saved location not found."}, status=404)
+
+        lat, lon = get_coordinates_from_address(
+            location.province,
+            location.district,
+            location.municipality,
+            location.ward_number
+        )
+
+        location_name = reverse_geocode_improved(lat, lon)
+        forecast = fetch_forecast(lat, lon)
+
+        return Response({
+            "location": location_name,
+            "latitude": lat,
+            "longitude": lon,
+            "forecast": forecast
         })

@@ -30,3 +30,9 @@ class DetectionRecord(models.Model):
     image = models.ImageField(upload_to='mediafiles/detections/')
     detected_disease = models.CharField(max_length=100)
     detected_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+
+
