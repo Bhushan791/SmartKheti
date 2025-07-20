@@ -8,9 +8,3 @@ class DetectionRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetectionRecord
         fields = ['id', 'detected_disease', 'detected_at', 'image']
-    
-
-
-
-
-
