@@ -10,8 +10,6 @@ urlpatterns = [
 
     path('request-otp/',RequestOTPView.as_view(), name='request_otp'),
 
-
-
     path('verify-otp/', VeriifyOTPAndChangePasswordView.as_view(), name='verify_otp')
     
 ]

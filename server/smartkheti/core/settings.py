@@ -2,13 +2,11 @@
 import mysql.connector.django
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-1kv9f96ay&==fbq-&h-y1_@q$%rx@le_(!nj81m7*)noz#mypp'
@@ -56,7 +54,6 @@ REST_FRAMEWORK = {
 
 ##JWT TIME-SESSION MANAGAMENT
 
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),  # <-- Increase this as needed
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Optional, if using refresh tokens
@@ -64,14 +61,6 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-
-
-
-
-
-
-
-
 
 
 # Phone number field default
@@ -140,17 +129,10 @@ TEMPLATES = [
 
 
 
+
+
+##WSGI APPS
 WSGI_APPLICATION = 'core.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-
-
-
-
-
 
 
 
@@ -161,9 +143,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 ##DATABASE
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',  # 👈 use this engine
+        'ENGINE': 'mysql.connector.django',  # 👈 engine
         'NAME': 'smartkheti',
-        'USER': 'root',           # e.g., root
+        'USER': 'root',           
         'PASSWORD': 'bhushanbhatta',
         'HOST': 'localhost',
         'PORT': '3306',
@@ -196,7 +178,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -208,15 +189,16 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/mediafiles/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
+##time zone
 TIME_ZONE = 'Asia/Kathmandu'
