@@ -1,12 +1,32 @@
-Tomato_Healthy
-Tomato_SeptoriaLeafSpot
-Tomato_YellowLeafCurl
-Potato_Healthy
-Potato_LateBlight
-Potato_EarlyBlight
-Maize_Healthy
-Maize_GrayLeafSpot
-Maize_CommonRust
-Rice_Healthy
-Rice_BrownSpot
-Rice_BacterialLeafBlight
+0 Tomato_Healthy
+1 Tomato_SeptoriaLeafSpot
+2 Tomato_YellowLeafCurl
+3 Potato_Healthy
+4 Potato_LateBlight
+5 Potato_EarlyBlight
+6 Maize_Healthy
+7 Maize_GrayLeafSpot
+8 Maize_CommonRust
+9 Rice_Healthy
+10 Rice_BrownSpot
+11 Rice_BacterialLeafBlight
+12 Wheat_Healthy
+13 Wheat_Mildew
+14 Wheat_Smut
+15 Cucumber_Healthy
+16 Cucumber_PythiumFruitRot
+17 Cucumber_Anthracnose
+18 Brinjal_Healthy
+19 Brinjal_MosaicVirus
+20 Brinjal_WiltDisease
+21 Cauliflower_Healthy
+22 Cauliflower_PurpleTinges
+23 Cauliflower_BacterialSoftRot
+24 Beans_Healthy
+25 Beans_AngularLeafSpot
+26 Beans_BeanRust
+27 Peas_Healthy
+28 Peas_PowderMildew
+29 Peas_LeafMiner
+
+

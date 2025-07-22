@@ -63,7 +63,7 @@ class UserProfileView(APIView):
 
 
 
-
+#otp request view
 class RequestOTPView(APIView):
     def post(self, request):
         phone = request.data.get('phone')
@@ -78,24 +78,37 @@ class RequestOTPView(APIView):
         return Response({'message': 'OPT sent successfully (check console)'}, status = 200)
     
 
+
+#otp-verify view
 class VeriifyOTPAndChangePasswordView(APIView):
     def post(self, request):
         phone = request.data.get('phone')
-        otp= request.data.get('otp')
-        new_password= request.data.get('new_password')
+        otp = request.data.get('otp')
+        new_password = request.data.get('new_password')
 
+        # 1. Check for missing fields
+        if not phone:
+            return Response({'error': 'Phone number is required'}, status=400)
+        if not otp:
+            return Response({'error': 'OTP is required'}, status=400)
+        if not new_password:
+            return Response({'error': 'New password is required'}, status=400)
 
+        # 2. Check if user exists
+        try:
+            user = User.objects.get(phone=phone)
+        except User.DoesNotExist:
+            return Response({'error': 'Phone number not found'}, status=404)
 
-        otp_record= OTPrequest.objects.filter(phone=phone, otp= otp).order_by('-created_at').first()
+        # 3. Check if OTP is valid
+        otp_record = OTPrequest.objects.filter(phone=phone, otp=otp).order_by('-created_at').first()
+        if not otp_record:
+            return Response({'error': 'Incorrect OTP'}, status=400)
+        if not otp_record.is_valid():
+            return Response({'error': 'OTP has expired'}, status=400)
 
-        if not otp_record  or not otp_record.is_valid():
-            return Response({'error': 'Invalid or expired OTP'}, status=400)
-        
-
-
-        user=User.objects.get(phone=phone)
+        # 4. Change the password
         user.set_password(new_password)
         user.save()
+
         return Response({'message': 'Password changed successfully'}, status=200)
-    
-                
