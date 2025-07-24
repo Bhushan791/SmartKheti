@@ -22,6 +22,7 @@ class RegisterUserView(generics.CreateAPIView):
             self.perform_create(serializer)
             return Response({'msg': "account created"}, status=status.HTTP_201_CREATED)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        print(serializer.errors) 
 
 #Profile View
 class UserProfileView(APIView):
@@ -59,6 +60,7 @@ class UserProfileView(APIView):
                 )
 
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        print(serializer.errors) 
 
 
 

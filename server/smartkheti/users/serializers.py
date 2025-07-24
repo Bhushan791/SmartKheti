@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        print("Create called with:", validated_data)  #debug  
         password = validated_data.pop('password', None)
         user = User(**validated_data)
         if password:
@@ -26,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
+        print("Update called with:", validated_data)   ##debug
         password = validated_data.pop('password', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -33,13 +35,37 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
-    
+
     def validate_phone(self, value):
-            if User.objects.filter(phone=value).exists():
-                raise serializers.ValidationError("Account with this phone number already registered")
-            return value
-    
+        print("Validating phone:", value)  #debug
+        
+        # Get the current instance (if updating)
+        instance = getattr(self, 'instance', None)
+        
+        # Check if phone exists, excluding current instance
+        queryset = User.objects.filter(phone=value)
+        if instance:
+            queryset = queryset.exclude(pk=instance.pk)
+            
+        if queryset.exists():
+            raise serializers.ValidationError("Account with this phone number already registered")
+        return value
+
     def validate_citizenship_number(self, value):
-        if User.objects.filter(citizenship_number= value):
-            raise serializers.ValidationError("CItizenship Number already rigistered")
+        print("Validating citizenship_number:", value)   # DEBUG
+        
+        # Skip validation if value is empty/None
+        if not value:
+            return value
+            
+        # Get the current instance (if updating)
+        instance = getattr(self, 'instance', None)
+        
+        # Check if citizenship number exists, excluding current instance
+        queryset = User.objects.filter(citizenship_number=value)
+        if instance:
+            queryset = queryset.exclude(pk=instance.pk)
+            
+        if queryset.exists():
+            raise serializers.ValidationError("Citizenship Number already registered")
         return value
