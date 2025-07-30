@@ -6,6 +6,8 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny
+
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListAPIView
 
@@ -116,6 +118,7 @@ class DetectionHistoryAPIView(ListAPIView):
 
 # Admin-only detection record view
 class AdminDetectionListAPIView(ListAPIView):
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
+    permission_classes= [AllowAny]
     serializer_class = DetectionRecordSerializer
     queryset = DetectionRecord.objects.all().order_by('-detected_at')

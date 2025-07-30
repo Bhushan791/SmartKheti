@@ -19,12 +19,22 @@ export const apiCall = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
-    const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.detail || data.error || "API call failed")
+      const errorText = await response.text()
+      let errorMessage = "API call failed"
+
+      try {
+        const errorData = JSON.parse(errorText)
+        errorMessage = errorData.detail || errorData.error || JSON.stringify(errorData) || errorMessage
+      } catch {
+        errorMessage = errorText || errorMessage
+      }
+
+      throw new Error(errorMessage)
     }
 
+    const data = await response.json()
     return { data, status: response.status }
   } catch (error) {
     console.error("API Error:", error)
@@ -32,13 +42,17 @@ export const apiCall = async (endpoint, options = {}) => {
   }
 }
 
-// Specific API functions for users
+// Specific API functions for users - FIXED TO MATCH DJANGO
 export const userAPI = {
+  // Registration - ONLY ONE TYPE (farmers)
   register: (userData) => {
+    // Remove confirm_password before sending to API
+    const { confirm_password, ...cleanData } = userData
+
     const formData = new FormData()
-    Object.keys(userData).forEach((key) => {
-      if (userData[key] !== null && userData[key] !== undefined) {
-        formData.append(key, userData[key])
+    Object.keys(cleanData).forEach((key) => {
+      if (cleanData[key] !== null && cleanData[key] !== undefined && cleanData[key] !== "") {
+        formData.append(key, cleanData[key])
       }
     })
 
@@ -49,19 +63,26 @@ export const userAPI = {
     })
   },
 
+  // Authentication
   login: (credentials) =>
     apiCall("/users/login/", {
       method: "POST",
       body: JSON.stringify(credentials),
     }),
 
+  // Profile management
   getProfile: () => apiCall("/users/profile/"),
 
   updateProfile: (userData) => {
     const formData = new FormData()
     Object.keys(userData).forEach((key) => {
-      if (userData[key] !== null && userData[key] !== undefined) {
-        formData.append(key, userData[key])
+      const value = userData[key]
+      if (value !== null && value !== undefined && value !== "") {
+        // Only add new files, not existing file objects
+        if (key === "profile_photo" && !(value instanceof File)) {
+          return // Skip existing file objects
+        }
+        formData.append(key, value)
       }
     })
 
@@ -72,6 +93,7 @@ export const userAPI = {
     })
   },
 
+  // Password reset
   requestOTP: (phone) =>
     apiCall("/users/request-otp/", {
       method: "POST",

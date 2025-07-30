@@ -1,3 +1,5 @@
+import { userAPI } from "./api"
+
 // Authentication utilities
 export const auth = {
   // Save tokens to localStorage
@@ -11,7 +13,7 @@ export const auth = {
   // Get access token
   getToken: () => localStorage.getItem("access_token"),
 
-  // Check if user is authenticated - FIXED VERSION
+  // Check if user is authenticated
   isAuthenticated: () => {
     const token = localStorage.getItem("access_token")
     if (!token) return false
@@ -37,11 +39,36 @@ export const auth = {
     }
   },
 
+  // Get user info from API - SIMPLIFIED (everyone is a farmer)
+  getUserInfo: async () => {
+    try {
+      const response = await userAPI.getProfile()
+      return response.data
+    } catch (error) {
+      console.error("Error getting user info:", error)
+      return null
+    }
+  },
+
+  // Get user phone from token
+  getUserPhone: () => {
+    const token = localStorage.getItem("access_token")
+    if (!token) return null
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]))
+      return payload.phone || payload.username || null
+    } catch (error) {
+      console.error("Error getting user phone:", error)
+      return null
+    }
+  },
+
   // Logout user
   logout: () => {
     localStorage.removeItem("access_token")
     localStorage.removeItem("refresh_token")
-    window.location.href = "/login"
+    window.location.href = "/"
   },
 
   // Redirect to login if not authenticated
@@ -52,4 +79,20 @@ export const auth = {
     }
     return true
   },
+}
+// Add this method to your existing auth object in auth.js
+
+// Get user type - since everyone is a farmer, always return "farmer"
+getUserType: async () => {
+  try {
+    // Since your system only has farmers, return "farmer"
+    // If you need to check from API, uncomment below:
+    // const response = await userAPI.getProfile()
+    // return response.data.user_type || "farmer"
+    
+    return "farmer"
+  } catch (error) {
+    console.error("Error getting user type:", error)
+    throw error
+  }
 }

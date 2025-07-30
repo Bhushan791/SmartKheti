@@ -35,7 +35,7 @@ class  CropListing(models.Model):
 
 
     description = models.TextField(blank=True)
-    video = models.FileField(upload_to='mediafiles/marketplace/crop_videos', blank=True, null=True)
+    video = models.FileField(upload_to='marketplace/crop_videos/', blank=True, null=True)
 
     date_posted= models.DateTimeField(auto_now_add=True)
 
@@ -50,7 +50,7 @@ class CropImage(models.Model):
     listing= models.ForeignKey(CropListing, on_delete=models.CASCADE, related_name='images')
 
 
-    image= models.ImageField(upload_to='mediafiles/marketplace/crop_images')
+    image= models.ImageField(upload_to='marketplace/crop_images/')
 
 
     def __str__(self):

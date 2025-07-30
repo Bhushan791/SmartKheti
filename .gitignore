@@ -1,4 +1,6 @@
-server/env/
+env/
 **/__pycache__/
 *.pyc
 server/smartkheti/mediafiles/
+server/smartkheti/**/migrations/__pycache__/
+*.sqlite3

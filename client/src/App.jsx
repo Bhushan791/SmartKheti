@@ -1,18 +1,27 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import LandingPage from "./components/LandingPage"
 import Register from "./users/components/Register"
 import Login from "./users/components/Login"
-import Profile from "./users/components/Profile"
+import FarmerDashboard from "./users/components/FarmerDashboard"
 import ForgotPassword from "./users/components/ForgotPassword"
+import MarketplacePublic from "./marketplace/components/MarketplacePublic"
 import { auth } from "./common/auth"
+import ReportGenerator from "./components/report"
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  return auth.isAuthenticated() ? children : <Navigate to="/login" replace />
+  if (!auth.isAuthenticated()) {
+    return <Navigate to="/login" replace />
+  }
+  return children
 }
 
-// Public Route Component (redirect to profile if already logged in)
+// Public Route Component (redirect to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
-  return !auth.isAuthenticated() ? children : <Navigate to="/profile" replace />
+  if (auth.isAuthenticated()) {
+    return <Navigate to="/farmer-dashboard" replace />
+  }
+  return children
 }
 
 function App() {
@@ -20,6 +29,13 @@ function App() {
     <Router>
       <div className="app" id="smart-kheti-app">
         <Routes>
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Public Marketplace */}
+          <Route path="/marketplace" element={<MarketplacePublic />} />
+          <Route path="/reports" element={<ReportGenerator />} />
+
           {/* Public Routes */}
           <Route
             path="/register"
@@ -46,25 +62,18 @@ function App() {
             }
           />
 
-          {/* Protected Routes */}
+          {/* Protected Routes - Only Farmers */}
           <Route
-            path="/profile"
+            path="/farmer-dashboard"
             element={
               <ProtectedRoute>
-                <Profile />
+                <FarmerDashboard />
               </ProtectedRoute>
             }
           />
 
-          {/* Default redirect - FIXED */}
-          <Route
-            path="/"
-            element={auth.isAuthenticated() ? <Navigate to="/profile" replace /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="*"
-            element={auth.isAuthenticated() ? <Navigate to="/profile" replace /> : <Navigate to="/login" replace />}
-          />
+          {/* Fallback redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

@@ -17,7 +17,7 @@ class DiseaseInfo(models.Model):
 class Product(models.Model):
     disease = models.ForeignKey(DiseaseInfo, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='mediafiles/products/')
+    image = models.ImageField(upload_to='products/')
 
     def __str__(self):
         return self.name
@@ -27,7 +27,7 @@ class Product(models.Model):
 
 class DetectionRecord(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='mediafiles/detections/')
+    image = models.ImageField(upload_to='detections/')
     detected_disease = models.CharField(max_length=100)
     detected_at = models.DateTimeField(auto_now_add=True)
 

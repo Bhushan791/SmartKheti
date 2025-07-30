@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { userAPI } from "../../common/api"
 import { auth } from "../../common/auth"
 
-const Profile = () => {
+const EnhancedProfile = () => {
   const [user, setUser] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({})
@@ -21,24 +21,22 @@ const Profile = () => {
     fetchProfile()
   }, [])
 
- const fetchProfile = async () => {
-  try {
-    const response = await userAPI.getProfile()
-    const userData = response.data
-    
-    // Fix profile photo URL
-    if (userData.profile_photo && !userData.profile_photo.startsWith('http')) {
-      userData.profile_photo = `http://localhost:8000${userData.profile_photo}`
+  const fetchProfile = async () => {
+    try {
+      const response = await userAPI.getProfile()
+      setUser(response.data)
+      setFormData(response.data)
+    } catch (error) {
+      console.error("Failed to fetch profile:", error)
+      if (error.message.includes("401") || error.message.includes("Unauthorized")) {
+        auth.logout()
+        return
+      }
+      setMessage(`Failed to load profile: ${error.message}`)
+    } finally {
+      setLoading(false)
     }
-    
-    setUser(userData)
-    setFormData(userData)
-  } catch (error) {
-    // ... existing error handling
-  } finally {
-    setLoading(false)
   }
-}
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target
@@ -64,13 +62,7 @@ const Profile = () => {
     setMessage("")
 
     try {
-      const updateData = { ...formData }
-
-      if (updateData.profile_photo && !(updateData.profile_photo instanceof File)) {
-        delete updateData.profile_photo
-      }
-
-      const response = await userAPI.updateProfile(updateData)
+      const response = await userAPI.updateProfile(formData)
       setUser(response.data)
       setIsEditing(false)
       setMessage("Profile updated successfully!")
@@ -93,307 +85,426 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-600 text-lg" id="profile-loading">
-        Loading profile...
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading profile...</p>
+        </div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen text-red-600" id="profile-error">
-        <p className="mb-4 text-xl font-semibold">Failed to load profile</p>
-        <button
-          onClick={() => (window.location.href = "/login")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Go to Login
-        </button>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Failed to load profile</h2>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
+          >
+            Go to Login
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6" id="profile-page">
-      <div className="flex flex-col md:flex-row md:justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0">User Profile</h1>
-        <div className="flex flex-wrap gap-2">
-          {!isEditing ? (
-            <>
-              <button
-                onClick={handleEdit}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow transition"
-                id="edit-profile-btn"
-              >
-                Edit Profile
-              </button>
-              <button
-                onClick={() => setShowChangePassword(!showChangePassword)}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded shadow transition"
-                id="change-password-toggle-btn"
-              >
-                Change Password
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow transition"
-                id="logout-btn"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={handleSave}
-                disabled={updating}
-                className={`px-4 py-2 rounded shadow text-white ${
-                  updating ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                } transition`}
-                id="save-profile-btn"
-              >
-                {updating ? "Saving..." : "Save Changes"}
-              </button>
-              <button
-                onClick={handleCancel}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded shadow transition"
-                id="cancel-edit-btn"
-              >
-                Cancel
-              </button>
-            </>
-          )}
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-emerald-50 p-4 lg:p-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-green-800 flex items-center gap-3">
+                <span className="text-3xl">👤</span>
+                User Profile
+              </h1>
+              <p className="text-gray-600 mt-1">Manage your account information and settings</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {!isEditing ? (
+                <>
+                  <button
+                    onClick={handleEdit}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={() => setShowChangePassword(!showChangePassword)}
+                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    Change Password
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSave}
+                    disabled={updating}
+                    className={`${
+                      updating
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 hover:shadow-lg"
+                    } text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform flex items-center gap-2`}
+                  >
+                    {updating ? (
+                      <>
+                        <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Message */}
+        {message && (
+          <div
+            className={`p-4 rounded-xl mb-8 border ${
+              message.includes("successfully")
+                ? "bg-green-50 text-green-800 border-green-200"
+                : "bg-red-50 text-red-800 border-red-200"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {message.includes("successfully") ? (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              <span className="font-medium">{message}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Photo Section */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Profile Photo
+              </h3>
+
+              <div className="text-center">
+                <div className="relative inline-block mb-6">
+                  {(isEditing ? formData.profile_photo : user.profile_photo) ? (
+                    <img
+                      src={
+                        isEditing && formData.profile_photo instanceof File
+                          ? URL.createObjectURL(formData.profile_photo)
+                          : user.profile_photo
+                      }
+                      alt="Profile"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-green-200 shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                      {user.first_name?.charAt(0)?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                </div>
+
+                {isEditing && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Change Profile Photo</label>
+                    <input
+                      type="file"
+                      name="profile_photo"
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                      accept="image/*"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Profile Information */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                Personal Information
+              </h3>
+
+              <div className="space-y-6">
+                {/* Name Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={formData.first_name || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                      />
+                    ) : (
+                      <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">{user.first_name}</div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={formData.last_name || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                      />
+                    ) : (
+                      <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">{user.last_name}</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                  <div className="px-4 py-3 bg-gray-100 rounded-xl text-gray-600 font-medium flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                    {user.phone}
+                    <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">Cannot be changed</span>
+                  </div>
+                </div>
+
+                {/* Citizenship Number */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Citizenship Number</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="citizenship_number"
+                      value={formData.citizenship_number || ""}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                      placeholder="Enter citizenship number"
+                    />
+                  ) : (
+                    <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">
+                      {user.citizenship_number || "Not provided"}
+                    </div>
+                  )}
+                </div>
+
+                {/* Location Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Province</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="province"
+                        value={formData.province || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                        placeholder="e.g., Bagmati"
+                      />
+                    ) : (
+                      <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">
+                        {user.province || "Not provided"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">District</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="district"
+                        value={formData.district || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                        placeholder="e.g., Kathmandu"
+                      />
+                    ) : (
+                      <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">
+                        {user.district || "Not provided"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Municipality</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="municipality"
+                        value={formData.municipality || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                        placeholder="e.g., Kathmandu Metropolitan"
+                      />
+                    ) : (
+                      <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">
+                        {user.municipality || "Not provided"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Ward Number</label>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        name="ward_number"
+                        value={formData.ward_number || ""}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                        placeholder="e.g., 1"
+                        min="1"
+                      />
+                    ) : (
+                      <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">
+                        {user.ward_number || "Not provided"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Preferred Language */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Preferred Language</label>
+                  {isEditing ? (
+                    <select
+                      name="preferred_language"
+                      value={formData.preferred_language || "np"}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                    >
+                      <option value="np">Nepali</option>
+                      <option value="en">English</option>
+                    </select>
+                  ) : (
+                    <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-medium">
+                      {user.preferred_language === "np" ? "Nepali" : "English"}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Change Password Section */}
+        {showChangePassword && <ChangePasswordSection onClose={() => setShowChangePassword(false)} />}
       </div>
-
-      {message && (
-        <div
-          className={`mb-6 p-3 rounded ${
-            message.includes("successfully")
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {message}
-        </div>
-      )}
-
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="md:w-1/3 flex flex-col items-center">
-          <div className="w-48 h-48 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center mb-4">
-            {(isEditing ? formData.profile_photo : user.profile_photo) ? (
-              <img
-                src={
-                  isEditing && formData.profile_photo instanceof File
-                    ? URL.createObjectURL(formData.profile_photo)
-                    : user.profile_photo
-                }
-                alt="Profile"
-                className="object-cover w-full h-full"
-                id="profile-photo-display"
-              />
-            ) : (
-              <div className="text-gray-400">No Photo</div>
-            )}
-          </div>
-
-          {isEditing && (
-            <div className="w-full">
-              <label
-                htmlFor="profile_photo"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Change Profile Photo
-              </label>
-              <input
-                type="file"
-                id="profile_photo"
-                name="profile_photo"
-                onChange={handleInputChange}
-                className="block w-full text-sm text-gray-600 border rounded px-2 py-1"
-                accept="image/*"
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="md:w-2/3 space-y-6">
-          {/* First and Last Name */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="first_name" className="block mb-1 font-medium text-gray-700">
-                First Name
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  id="first_name"
-                  name="first_name"
-                  value={formData.first_name || ""}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              ) : (
-                <p className="text-gray-800">{user.first_name}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="last_name" className="block mb-1 font-medium text-gray-700">
-                Last Name
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  id="last_name"
-                  name="last_name"
-                  value={formData.last_name || ""}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              ) : (
-                <p className="text-gray-800">{user.last_name}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">Phone Number</label>
-            <p className="text-gray-800">{user.phone}</p>
-          </div>
-
-          {/* Citizenship Number */}
-          <div>
-            <label htmlFor="citizenship_number" className="block mb-1 font-medium text-gray-700">
-              Citizenship Number
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                id="citizenship_number"
-                name="citizenship_number"
-                value={formData.citizenship_number || ""}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            ) : (
-              <p className="text-gray-800">{user.citizenship_number || "Not provided"}</p>
-            )}
-          </div>
-
-          {/* Province and District */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="province" className="block mb-1 font-medium text-gray-700">
-                Province
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  id="province"
-                  name="province"
-                  value={formData.province || ""}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              ) : (
-                <p className="text-gray-800">{user.province || "Not provided"}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="district" className="block mb-1 font-medium text-gray-700">
-                District
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  id="district"
-                  name="district"
-                  value={formData.district || ""}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              ) : (
-                <p className="text-gray-800">{user.district || "Not provided"}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Municipality and Ward Number */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="municipality" className="block mb-1 font-medium text-gray-700">
-                Municipality
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  id="municipality"
-                  name="municipality"
-                  value={formData.municipality || ""}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              ) : (
-                <p className="text-gray-800">{user.municipality || "Not provided"}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="ward_number" className="block mb-1 font-medium text-gray-700">
-                Ward Number
-              </label>
-              {isEditing ? (
-                <input
-                  type="number"
-                  id="ward_number"
-                  name="ward_number"
-                  value={formData.ward_number || ""}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  min="1"
-                />
-              ) : (
-                <p className="text-gray-800">{user.ward_number || "Not provided"}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Preferred Language */}
-          <div>
-            <label htmlFor="preferred_language" className="block mb-1 font-medium text-gray-700">
-              Preferred Language
-            </label>
-            {isEditing ? (
-              <select
-                id="preferred_language"
-                name="preferred_language"
-                value={formData.preferred_language || "np"}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="np">Nepali</option>
-                <option value="en">English</option>
-              </select>
-            ) : (
-              <p className="text-gray-800">
-                {user.preferred_language === "np" ? "Nepali" : "English"}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {showChangePassword && <ChangePasswordSection onClose={() => setShowChangePassword(false)} />}
     </div>
   )
 }
 
 // Change Password Component
 const ChangePasswordSection = ({ onClose }) => {
-  const [step, setStep] = useState(1) // 1: phone, 2: otp + password
+  const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     phone: "",
     otp: "",
@@ -463,121 +574,130 @@ const ChangePasswordSection = ({ onClose }) => {
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50"
-      id="change-password-section"
-    >
-      <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg relative">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Change Password</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl leading-none font-bold"
-            id="close-change-password"
-            aria-label="Close"
-          >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            Change Password
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold transition-colors">
             ×
           </button>
         </div>
 
         {message && (
           <div
-            className={`mb-4 rounded p-3 ${
+            className={`p-4 rounded-xl mb-6 border ${
               message.includes("successfully")
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "bg-green-50 text-green-800 border-green-200"
+                : "bg-red-50 text-red-800 border-red-200"
             }`}
           >
-            {message}
+            <div className="flex items-center gap-2">
+              {message.includes("successfully") ? (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              <span className="font-medium">{message}</span>
+            </div>
           </div>
         )}
 
         {step === 1 ? (
-          <form onSubmit={handleRequestOTP} className="space-y-4">
+          <form onSubmit={handleRequestOTP} className="space-y-6">
             <div>
-              <label
-                htmlFor="change-phone"
-                className="block mb-1 font-medium text-gray-700"
-              >
-                Enter your phone number
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Enter your phone number</label>
               <input
                 type="tel"
-                id="change-phone"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
                 placeholder="+977-9800000000"
                 required
               />
             </div>
             <button
               type="submit"
-              className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
               disabled={loading}
+              className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 hover:shadow-lg"
+              } text-white`}
             >
               {loading ? "Sending OTP..." : "Send OTP"}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleChangePassword} className="space-y-4">
+          <form onSubmit={handleChangePassword} className="space-y-6">
             <div>
-              <label
-                htmlFor="change-otp"
-                className="block mb-1 font-medium text-gray-700"
-              >
-                Enter OTP
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Enter OTP</label>
               <input
                 type="text"
-                id="change-otp"
                 name="otp"
                 value={formData.otp}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                maxLength="6"
+                placeholder="Enter 6-digit OTP"
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="change-new-password"
-                className="block mb-1 font-medium text-gray-700"
-              >
-                New Password
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
               <input
                 type="password"
-                id="change-new-password"
                 name="new_password"
                 value={formData.new_password}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                minLength={6}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                minLength="6"
+                placeholder="Minimum 6 characters"
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="change-confirm-password"
-                className="block mb-1 font-medium text-gray-700"
-              >
-                Confirm New Password
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
               <input
                 type="password"
-                id="change-confirm-password"
                 name="confirm_password"
                 value={formData.confirm_password}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 transition-all duration-200"
+                placeholder="Confirm your password"
                 required
               />
             </div>
             <button
               type="submit"
-              className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded"
               disabled={loading}
+              className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 hover:shadow-lg"
+              } text-white`}
             >
               {loading ? "Changing Password..." : "Change Password"}
             </button>
@@ -588,4 +708,4 @@ const ChangePasswordSection = ({ onClose }) => {
   )
 }
 
-export default Profile
+export default EnhancedProfile
