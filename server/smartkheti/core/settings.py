@@ -145,17 +145,31 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 ##DATABASE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mysql.connector.django',  # 👈 engine
+#         'NAME': 'smartkheti',
+#         'USER': 'root',           
+#         'PASSWORD': 'bhushanbhatta',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'autocommit': True,
+#         }
+#     }
+# }
+
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',  # 👈 engine
+        'ENGINE': 'django.db.backends.postgresql',  # default PostgreSQL backend
         'NAME': 'smartkheti',
-        'USER': 'root',           
+        'USER': 'postgres',
         'PASSWORD': 'bhushanbhatta',
         'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'autocommit': True,
-        }
+        'PORT': '5432',
+        # Remove OPTIONS or keep it empty if not needed
     }
 }
 
@@ -194,15 +208,19 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'static/'
-MEDIA_URL = '/mediafiles/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is correct
 
-# Default primary key field type
-
+# Make sure this is consistent throughout
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Add these for better media handling
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 
 ##time zone
 TIME_ZONE = 'Asia/Kathmandu'

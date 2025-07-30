@@ -31,6 +31,17 @@ const EnhancedRegister = () => {
       ...prev,
       [name]: type === "file" ? files[0] : value,
     }))
+
+    // Clear errors when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }))
+    }
+    if (message) {
+      setMessage("")
+    }
   }
 
   const formatPhoneNumber = (phone) => {
@@ -75,6 +86,58 @@ const EnhancedRegister = () => {
     return Object.keys(newErrors).length === 0
   }
 
+  const getErrorMessage = (error) => {
+    const errorMessage = error.message.toLowerCase()
+
+    // Handle different types of registration errors professionally
+    if (errorMessage.includes("phone") && errorMessage.includes("already exists")) {
+      return "This phone number is already registered. Please use a different number or try logging in instead."
+    }
+
+    if (errorMessage.includes("user already exists") || errorMessage.includes("account already exists")) {
+      return "An account with this information already exists. Please try logging in or use different details."
+    }
+
+    if (errorMessage.includes("invalid phone") || errorMessage.includes("phone format")) {
+      return "Please enter a valid Nepal phone number (e.g., 9800000000 or +9779800000000)."
+    }
+
+    if (errorMessage.includes("password") && errorMessage.includes("weak")) {
+      return "Please choose a stronger password with at least 6 characters."
+    }
+
+    if (errorMessage.includes("validation") || errorMessage.includes("required field")) {
+      return "Please fill in all required fields with valid information."
+    }
+
+    if (errorMessage.includes("network") || errorMessage.includes("connection")) {
+      return "Unable to connect to our servers. Please check your internet connection and try again."
+    }
+
+    if (
+      errorMessage.includes("server error") ||
+      errorMessage.includes("internal error") ||
+      errorMessage.includes("500")
+    ) {
+      return "We're experiencing technical difficulties. Please try again in a few moments."
+    }
+
+    if (errorMessage.includes("timeout")) {
+      return "The request timed out. Please check your connection and try again."
+    }
+
+    if (errorMessage.includes("file") && errorMessage.includes("size")) {
+      return "The profile photo is too large. Please choose a smaller image file."
+    }
+
+    if (errorMessage.includes("file") && errorMessage.includes("type")) {
+      return "Please upload a valid image file (JPG, PNG, or GIF)."
+    }
+
+    // Default professional message for unknown errors
+    return "We're unable to create your account right now. Please check your information and try again."
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validateForm()) return
@@ -92,21 +155,33 @@ const EnhancedRegister = () => {
       const response = await userAPI.register(userData)
 
       console.log("Registration response:", response)
-      setMessage("Account created successfully! Redirecting to login...")
+      setMessage("🎉 Welcome to SmartKheti! Your account has been created successfully. Redirecting to login...")
       setTimeout(() => {
         window.location.href = "/login"
       }, 2000)
     } catch (error) {
       console.error("Registration error:", error)
+
       try {
         const errorData = JSON.parse(error.message)
         if (errorData.errors) {
-          setErrors(errorData.errors)
+          // Handle field-specific errors from backend
+          const backendErrors = {}
+          Object.keys(errorData.errors).forEach((field) => {
+            if (field === "phone" && errorData.errors[field].includes("already exists")) {
+              backendErrors[field] = "This phone number is already registered. Please use a different number."
+            } else {
+              backendErrors[field] = errorData.errors[field]
+            }
+          })
+          setErrors(backendErrors)
         } else {
-          setMessage(`Registration failed: ${error.message}`)
+          const professionalMessage = getErrorMessage(error)
+          setMessage(professionalMessage)
         }
       } catch {
-        setMessage(`Registration failed: ${error.message}`)
+        const professionalMessage = getErrorMessage(error)
+        setMessage(professionalMessage)
       }
     } finally {
       setLoading(false)
@@ -138,14 +213,14 @@ const EnhancedRegister = () => {
           {message && (
             <div
               className={`p-4 rounded-xl mb-6 ${
-                message.includes("successfully")
+                message.includes("🎉") || message.includes("successfully")
                   ? "bg-green-50 text-green-800 border border-green-200"
                   : "bg-red-50 text-red-800 border border-red-200"
               }`}
             >
-              <div className="flex items-center gap-2">
-                {message.includes("successfully") ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-start gap-3">
+                {message.includes("🎉") || message.includes("successfully") ? (
+                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -153,7 +228,7 @@ const EnhancedRegister = () => {
                     />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -161,7 +236,7 @@ const EnhancedRegister = () => {
                     />
                   </svg>
                 )}
-                <span className="font-medium">{message}</span>
+                <span className="font-medium text-sm leading-relaxed">{message}</span>
               </div>
             </div>
           )}

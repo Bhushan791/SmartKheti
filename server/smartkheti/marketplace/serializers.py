@@ -39,15 +39,27 @@ class CropListingSerializer(serializers.Serializer):
             for image in images:
                 CropImage.objects.create(listing=instance, image=image)
         return instance
+
+# 🔧 FIXED: This serializer now returns full URLs
 class CropImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = CropImage
         fields = ['image']
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
 
+# 🔧 FIXED: This serializer now handles video URLs and passes context
 class CropListingReadSerializer(serializers.ModelSerializer):
-    images = CropImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     category = serializers.SlugRelatedField(slug_field='name', read_only=True)
     farmer = serializers.SerializerMethodField()
+    video = serializers.SerializerMethodField()
 
     class Meta:
         model = CropListing
@@ -59,3 +71,14 @@ class CropListingReadSerializer(serializers.ModelSerializer):
 
     def get_farmer(self, obj):
         return f"{obj.farmer.first_name} {obj.farmer.last_name}".strip()
+    
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = obj.images.all()
+        return CropImageSerializer(images, many=True, context={'request': request}).data
+    
+    def get_video(self, obj):
+        request = self.context.get('request')
+        if obj.video and request:
+            return request.build_absolute_uri(obj.video.url)
+        return None

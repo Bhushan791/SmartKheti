@@ -38,6 +38,16 @@ const EnhancedLogin = () => {
       ...prev,
       [name]: value,
     }))
+    // Clear errors when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }))
+    }
+    if (message) {
+      setMessage("")
+    }
   }
 
   const formatPhoneNumber = (phone) => {
@@ -55,12 +65,63 @@ const EnhancedLogin = () => {
     const newErrors = {}
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required"
+    } else {
+      const phone = formData.phone.trim()
+      if (!phone.match(/^(\+977)?[0-9]{10}$/) && !phone.match(/^\+977[0-9]{10}$/)) {
+        newErrors.phone = "Please enter a valid Nepal phone number"
+      }
     }
     if (!formData.password) {
       newErrors.password = "Password is required"
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  const getErrorMessage = (error) => {
+    const errorMessage = error.message.toLowerCase()
+
+    // Handle different types of authentication errors professionally
+    if (
+      errorMessage.includes("no active users found") ||
+      errorMessage.includes("user not found") ||
+      errorMessage.includes("invalid credentials") ||
+      errorMessage.includes("phone number or password") ||
+      errorMessage.includes("authentication failed")
+    ) {
+      return "The phone number or password you entered is incorrect. Please check your credentials and try again."
+    }
+
+    if (errorMessage.includes("account disabled") || errorMessage.includes("account suspended")) {
+      return "Your account has been temporarily suspended. Please contact support for assistance."
+    }
+
+    if (errorMessage.includes("too many attempts") || errorMessage.includes("rate limit")) {
+      return "Too many login attempts. Please wait a few minutes before trying again."
+    }
+
+    if (errorMessage.includes("network") || errorMessage.includes("connection")) {
+      return "Unable to connect to our servers. Please check your internet connection and try again."
+    }
+
+    if (
+      errorMessage.includes("server error") ||
+      errorMessage.includes("internal error") ||
+      errorMessage.includes("500")
+    ) {
+      return "We're experiencing technical difficulties. Please try again in a few moments."
+    }
+
+    if (errorMessage.includes("timeout")) {
+      return "The request timed out. Please check your connection and try again."
+    }
+
+    if (errorMessage.includes("phone") && errorMessage.includes("format")) {
+      return "Please enter a valid Nepal phone number (e.g., 9800000000 or +9779800000000)."
+    }
+
+    // Default professional message for unknown errors
+    return "We're unable to sign you in right now. Please verify your credentials and try again."
   }
 
   const handleSubmit = async (e) => {
@@ -83,14 +144,15 @@ const EnhancedLogin = () => {
       console.log("Login response:", response)
 
       auth.saveTokens(response.data)
-      setMessage("Login successful! Redirecting to dashboard...")
+      setMessage("Welcome back! Redirecting to your dashboard...")
 
       setTimeout(() => {
         window.location.href = "/farmer-dashboard"
       }, 1000)
     } catch (error) {
       console.error("Login error:", error)
-      setMessage(`Login failed: ${error.message}`)
+      const professionalMessage = getErrorMessage(error)
+      setMessage(professionalMessage)
       setLoading(false)
     }
   }
@@ -120,14 +182,14 @@ const EnhancedLogin = () => {
           {message && (
             <div
               className={`p-4 rounded-xl mb-6 ${
-                message.includes("successful")
+                message.includes("Welcome") || message.includes("successful")
                   ? "bg-green-50 text-green-800 border border-green-200"
                   : "bg-red-50 text-red-800 border border-red-200"
               }`}
             >
-              <div className="flex items-center gap-2">
-                {message.includes("successful") ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-start gap-3">
+                {message.includes("Welcome") || message.includes("successful") ? (
+                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -135,7 +197,7 @@ const EnhancedLogin = () => {
                     />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -143,7 +205,7 @@ const EnhancedLogin = () => {
                     />
                   </svg>
                 )}
-                <span className="font-medium">{message}</span>
+                <span className="font-medium text-sm leading-relaxed">{message}</span>
               </div>
             </div>
           )}

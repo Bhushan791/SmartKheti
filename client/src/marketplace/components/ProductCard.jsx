@@ -20,12 +20,20 @@ const EnhancedProductCard = ({ listing, isOwner = false, onEdit, onDelete, onCli
     }).format(price)
   }
 
-  const getImageUrl = () => {
-    if (listing.images && listing.images.length > 0) {
-      return listing.images[0].image || listing.images[0]
+// In ProductCard.jsx - Replace the getImageUrl function:
+
+const getImageUrl = () => {
+  if (listing.images && listing.images.length > 0) {
+    const imagePath = listing.images[0].image || listing.images[0];
+    // If already a full URL, return as is
+    if (imagePath && imagePath.startsWith('http')) {
+      return imagePath;
     }
-    return "/placeholder.svg?height=200&width=300"
+    // Otherwise, prepend backend URL
+    return imagePath ? `http://localhost:8000${imagePath}` : "/placeholder.svg?height=200&width=300";
   }
+  return "/placeholder.svg?height=200&width=300";
+};
 
   const getCategoryColor = (category) => {
     const colors = {

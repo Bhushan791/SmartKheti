@@ -14,7 +14,8 @@ class CropListingView(APIView):
     def get(self, request, pk=None):
         if pk:
             listing = get_object_or_404(CropListing, pk=pk)
-            serializer = CropListingReadSerializer(listing)
+            # 🔧 FIXED: Pass request context
+            serializer = CropListingReadSerializer(listing, context={'request': request})
             return Response(serializer.data)
         else:
             searchquery = request.query_params.get('searchquery')
@@ -27,9 +28,9 @@ class CropListingView(APIView):
                     Q(description__icontains=searchquery)
                 )
 
-            serializer = CropListingReadSerializer(queryset, many=True)
+            # 🔧 FIXED: Pass request context
+            serializer = CropListingReadSerializer(queryset, many=True, context={'request': request})
             return Response(serializer.data)
-
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -51,7 +52,7 @@ class CropListingView(APIView):
         if listing.farmer != request.user:
             raise PermissionDenied("You can only update your own listings.")
 
-        serializer = CropListingSerializer(listing, partial = True, data=request.data, context={'request': request})
+        serializer = CropListingSerializer(listing, partial=True, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -75,5 +76,6 @@ class MyListingsView(APIView):
 
     def get(self, request):
         listings = CropListing.objects.filter(farmer=request.user).order_by('-date_posted')
-        serializer = CropListingReadSerializer(listings, many=True)
+        # 🔧 FIXED: Pass request context
+        serializer = CropListingReadSerializer(listings, many=True, context={'request': request})
         return Response(serializer.data)

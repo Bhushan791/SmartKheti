@@ -258,47 +258,48 @@ const EnhancedMarketplacePublic = () => {
         )}
 
         {/* Call to Action */}
-        <section className="bg-gradient-to-r from-green-800 via-green-700 to-emerald-800 text-white rounded-3xl p-8 lg:p-12 text-center shadow-2xl">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Are you a farmer?</h2>
-            <p className="text-lg lg:text-xl mb-8 text-green-100">
-              Join SmartKheti marketplace and start selling your crops directly to customers across Nepal
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/register"
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
-              >
-                <span className="text-xl">📝</span>
-                Register as Farmer
-              </a>
-              <a
-                href="/login"
-                className="border-2 border-white text-white hover:bg-white hover:text-green-800 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-              >
-                <span className="text-xl">🔑</span>
-                Login
-              </a>
-            </div>
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="bg-white bg-opacity-10 rounded-xl p-6">
-                <div className="text-3xl mb-2">🌱</div>
-                <h3 className="font-bold mb-2">Grow Your Business</h3>
-                <p className="text-green-100 text-sm">Reach thousands of customers</p>
-              </div>
-              <div className="bg-white bg-opacity-10 rounded-xl p-6">
-                <div className="text-3xl mb-2">💰</div>
-                <h3 className="font-bold mb-2">Fair Pricing</h3>
-                <p className="text-green-100 text-sm">Set your own competitive prices</p>
-              </div>
-              <div className="bg-white bg-opacity-10 rounded-xl p-6">
-                <div className="text-3xl mb-2">📱</div>
-                <h3 className="font-bold mb-2">Easy to Use</h3>
-                <p className="text-green-100 text-sm">Simple listing and management</p>
-              </div>
-            </div>
-          </div>
-        </section>
+      <section className="bg-gradient-to-r from-green-900 via-green-800 to-emerald-900 text-white rounded-3xl p-8 lg:p-12 text-center shadow-2xl">
+  <div className="max-w-4xl mx-auto">
+    <h2 className="text-3xl lg:text-4xl font-bold mb-4">Are you a farmer?</h2>
+    <p className="text-lg lg:text-xl mb-8 text-white">
+      Join SmartKheti marketplace and start selling your crops directly to customers across Nepal
+    </p>
+    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        href="/register"
+        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
+      >
+        <span className="text-xl">📝</span>
+        Register as Farmer
+      </a>
+      <a
+        href="/login"
+        className="border-2 border-white text-white hover:bg-white hover:text-green-900 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+      >
+        <span className="text-xl">🔑</span>
+        Login
+      </a>
+    </div>
+    <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+      <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
+        <div className="text-3xl mb-2">🌱</div>
+        <h3 className="font-bold mb-2 text-white">Grow Your Business</h3>
+        <p className="text-white text-sm">Reach thousands of customers</p>
+      </div>
+      <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
+        <div className="text-3xl mb-2">💰</div>
+        <h3 className="font-bold mb-2 text-white">Fair Pricing</h3>
+        <p className="text-white text-sm">Set your own competitive prices</p>
+      </div>
+      <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
+        <div className="text-3xl mb-2">📱</div>
+        <h3 className="font-bold mb-2 text-white">Easy to Use</h3>
+        <p className="text-white text-sm">Simple listing and management</p>
+      </div>
+    </div>
+  </div>
+</section>
+
       </main>
 
       {/* Product Modal */}

@@ -1,5 +1,29 @@
 import { apiCall } from "../common/api"
 
+
+// In your marketplace api.js - Add this helper function at the top:
+
+const processImageUrls = (listing) => {
+  // Process images array
+  if (listing.images && Array.isArray(listing.images)) {
+    listing.images = listing.images.map(img => {
+      const imagePath = img.image || img;
+      if (imagePath && !imagePath.startsWith('http')) {
+        return { ...img, image: `http://localhost:8000${imagePath}` };
+      }
+      return img;
+    });
+  }
+  
+  // Process video URL
+  if (listing.video && !listing.video.startsWith('http')) {
+    listing.video = `http://localhost:8000${listing.video}`;
+  }
+  
+  return listing;
+};
+
+
 // Marketplace API functions
 export const marketplaceAPI = {
   // Get all crop listings (public)

@@ -60,3 +60,5 @@ class CropImage(models.Model):
 
 
 
+
+

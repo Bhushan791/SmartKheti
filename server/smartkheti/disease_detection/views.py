@@ -118,7 +118,7 @@ class DetectionHistoryAPIView(ListAPIView):
 
 # Admin-only detection record view
 class AdminDetectionListAPIView(ListAPIView):
-    # permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUserr]
     permission_classes= [AllowAny]
     serializer_class = DetectionRecordSerializer
     queryset = DetectionRecord.objects.all().order_by('-detected_at')

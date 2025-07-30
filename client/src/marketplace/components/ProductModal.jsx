@@ -93,12 +93,32 @@ const ProductModal = ({ listing, onClose }) => {
     }).format(price)
   }
 
-  const getImages = () => {
-    if (listing.images && listing.images.length > 0) {
-      return listing.images.map((img) => img.image || img)
-    }
-    return ["/placeholder.svg?height=400&width=600"]
+// In ProductModal.jsx - Replace the getImages function:
+
+const getImages = () => {
+  if (listing.images && listing.images.length > 0) {
+    return listing.images.map((img) => {
+      const imagePath = img.image || img;
+      // If already a full URL, return as is
+      if (imagePath && imagePath.startsWith('http')) {
+        return imagePath;
+      }
+      // Otherwise, prepend backend URL
+      return imagePath ? `http://localhost:8000${imagePath}` : "/placeholder.svg?height=400&width=600";
+    });
   }
+  return ["/placeholder.svg?height=400&width=600"];
+};
+
+// Also fix the video URL in the same file:
+// Replace the video source line:
+// REPLACE the video source line with this:
+<source 
+  src={listing.video && !listing.video.startsWith('http') 
+    ? `http://localhost:8000${listing.video}` 
+    : listing.video} 
+  type="video/mp4" 
+/>
 
   const images = getImages()
 

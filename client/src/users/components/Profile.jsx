@@ -13,6 +13,13 @@ const EnhancedProfile = () => {
   const [message, setMessage] = useState("")
   const [showChangePassword, setShowChangePassword] = useState(false)
 
+  const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  // If the path already includes http/https, return as is
+  if (imagePath.startsWith('http')) return imagePath;
+  // Otherwise, prepend your backend URL
+  return `http://localhost:8000${imagePath}`;
+};
   useEffect(() => {
     if (!auth.isAuthenticated()) {
       window.location.href = "/login"
@@ -275,21 +282,25 @@ const EnhancedProfile = () => {
 
               <div className="text-center">
                 <div className="relative inline-block mb-6">
-                  {(isEditing ? formData.profile_photo : user.profile_photo) ? (
-                    <img
-                      src={
-                        isEditing && formData.profile_photo instanceof File
-                          ? URL.createObjectURL(formData.profile_photo)
-                          : user.profile_photo
-                      }
-                      alt="Profile"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-green-200 shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                      {user.first_name?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                  )}
+{(isEditing ? formData.profile_photo : user.profile_photo) ? (
+  <img
+    src={
+      isEditing && formData.profile_photo instanceof File
+        ? URL.createObjectURL(formData.profile_photo)
+        : getImageUrl(user.profile_photo)  // ✅ Now constructs full URL
+    }
+    alt="Profile"
+    className="w-32 h-32 rounded-full object-cover border-4 border-green-200 shadow-lg"
+    onError={(e) => {
+      console.log('Image failed to load:', e.target.src);
+      e.target.style.display = 'none';
+    }}
+  />
+) : (
+  <div className="w-32 h-32 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+    {user.first_name?.charAt(0)?.toUpperCase() || "U"}
+  </div>
+)}
                 </div>
 
                 {isEditing && (
