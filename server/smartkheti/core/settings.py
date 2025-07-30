@@ -1,24 +1,18 @@
-
-import mysql.connector.django
+import os
 from pathlib import Path
 from datetime import timedelta
-import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECRET KEY & DEBUG FROM ENV
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1kv9f96ay&==fbq-&h-y1_@q$%rx@le_(!nj81m7*)noz#mypp'
+# ALLOWED HOSTS
+ALLOWED_HOSTS = ['*']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
-
+# APPLICATIONS
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -30,48 +24,16 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'rest_framework',
     'rest_framework_simplejwt',
+
+    # your apps
     'users',
     'disease_detection',
     'weather',
     'marketplace',
-    'reports'
+    'reports',
 ]
 
-
-
-
-
-
-## REST FRAMEWORK 
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
-
-
-
-
-##JWT TIME-SESSION MANAGAMENT
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),  # <-- Increase this as needed
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Optional, if using refresh tokens
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
-
-
-# Phone number field default
-PHONENUMBER_DEFAULT_REGION = 'NP'
-
-
-
-
-
-##MIDDLEWARE
+# MIDDLEWARE
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -83,27 +45,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# CORS
 CORS_ALLOW_ALL_ORIGINS = True
 
-
-
-
-
-
-
-
-
-##URLS ROOT 
+# URLS & WSGI
 ROOT_URLCONF = 'core.urls'
+WSGI_APPLICATION = 'core.wsgi.application'
 
-
-
-
-
-##AUTH USER MODEL
+# AUTH MODEL
 AUTH_USER_MODEL = 'users.User'
 
-##TEMPLATES
+# TEMPLATES
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -120,107 +72,57 @@ TEMPLATES = [
     },
 ]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##WSGI APPS
-WSGI_APPLICATION = 'core.wsgi.application'
-
-
-
-
-
-
-
-##DATABASE
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'mysql.connector.django',  # 👈 engine
-#         'NAME': 'smartkheti',
-#         'USER': 'root',           
-#         'PASSWORD': 'bhushanbhatta',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'autocommit': True,
-#         }
-#     }
-# }
-
-
-
+# DATABASE (Render PostgreSQL setup)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # default PostgreSQL backend
-        'NAME': 'smartkheti',
-        'USER': 'postgres',
-        'PASSWORD': 'bhushanbhatta',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        # Remove OPTIONS or keep it empty if not needed
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
+# REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
+# JWT CONFIG
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
-
-
-
-##VALIDATIONS
+# PASSWORD VALIDATORS
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Internationalization
-
+# INTERNATIONALIZATION
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Asia/Kathmandu'
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-
+# STATIC & MEDIA
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Media files (User uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is correct
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Make sure this is consistent throughout
+# OTHER SETTINGS
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Add these for better media handling
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-
-##time zone
-TIME_ZONE = 'Asia/Kathmandu'
+PHONENUMBER_DEFAULT_REGION = 'NP'
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
