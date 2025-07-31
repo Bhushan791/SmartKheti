@@ -84,6 +84,15 @@ DATABASES = {
     }
 }
 
+import sys
+
+print("DEBUGGING DATABASE CONFIGURATION:", file=sys.stderr)
+print("DB_NAME:", os.environ.get('DB_NAME'), file=sys.stderr)
+print("DB_USER:", os.environ.get('DB_USER'), file=sys.stderr)
+print("DB_PASSWORD:", "******" if os.environ.get('DB_PASSWORD') else None, file=sys.stderr)
+print("DB_HOST:", os.environ.get('DB_HOST'), file=sys.stderr)
+print("DB_PORT:", os.environ.get('DB_PORT'), file=sys.stderr)
+
 # REST FRAMEWORK
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
