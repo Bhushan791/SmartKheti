@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8000
 
 # Start Gunicorn server with your Django wsgi application
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "gunicorn core.wsgi:application --bind 0.0.0.0:8000"]
