@@ -86,7 +86,7 @@ class DiseaseDetectionAPIView(APIView):
                     response_data = {
                         "detected_disease": "Healthy",
                         "crop": disease_info.crop,
-                        "message": "Your crop looks healthy! Keep monitoring regularly.",
+                        "message": "Your crop looks healthy! Keep monitoring regularly..",
                         "recheck_advice": disease_info.recheck_advice
                     }
                 else:
