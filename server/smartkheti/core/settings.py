@@ -1,11 +1,15 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
 
-# BASE DIR
+# Load environment variables from .env file
+load_dotenv()
+
+# BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECRET KEY & DEBUG FROM ENV
+# SECRET KEY & DEBUG
 SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
@@ -19,13 +23,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'corsheaders',
     'django.contrib.staticfiles',
+    'corsheaders',
     'phonenumber_field',
     'rest_framework',
     'rest_framework_simplejwt',
 
-    # your apps
+    # Your custom apps
     'users',
     'disease_detection',
     'weather',
@@ -45,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS
+# CORS CONFIGURATION
 CORS_ALLOW_ALL_ORIGINS = True
 
 # URLS & WSGI
@@ -72,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-# DATABASE (Render PostgreSQL setup)
+# DATABASE CONFIGURATION (PostgreSQL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -84,8 +88,8 @@ DATABASES = {
     }
 }
 
+# DEBUG DATABASE CONFIG (for deploy or logs)
 import sys
-
 print("DEBUGGING DATABASE CONFIGURATION:", file=sys.stderr)
 print("DB_NAME:", os.environ.get('DB_NAME'), file=sys.stderr)
 print("DB_USER:", os.environ.get('DB_USER'), file=sys.stderr)
@@ -93,14 +97,14 @@ print("DB_PASSWORD:", "******" if os.environ.get('DB_PASSWORD') else None, file=
 print("DB_HOST:", os.environ.get('DB_HOST'), file=sys.stderr)
 print("DB_PORT:", os.environ.get('DB_PORT'), file=sys.stderr)
 
-# REST FRAMEWORK
+# REST FRAMEWORK SETTINGS
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
-# JWT CONFIG
+# JWT SETTINGS
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -109,7 +113,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# PASSWORD VALIDATORS
+# PASSWORD VALIDATION
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -123,15 +127,15 @@ TIME_ZONE = 'Asia/Kathmandu'
 USE_I18N = True
 USE_TZ = True
 
-# STATIC & MEDIA
+# STATIC & MEDIA FILES
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# OTHER SETTINGS
+# MISC
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PHONENUMBER_DEFAULT_REGION = 'NP'
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB

@@ -14,7 +14,15 @@ from rest_framework.generics import ListAPIView
 from .serializers import ImageUploadSerializer, DetectionRecordSerializer
 from .models import DiseaseInfo, Product, DetectionRecord
 
-import tflite_runtime.interpreter as tflite
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    import tensorflow as tf
+    # Create a compatibility wrapper
+    class tflite:
+        @staticmethod
+        def Interpreter(model_path=None, model_content=None):
+            return tf.lite.Interpreter(model_path=model_path, model_content=model_content)
 
 # Load model and labels
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'disease_detection', 'AI_Model', 'model_unquant.tflite')

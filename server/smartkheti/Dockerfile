@@ -1,4 +1,4 @@
-FROM python:3.8.18
+FROM python:3.11.8
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel
