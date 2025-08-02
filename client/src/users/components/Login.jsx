@@ -182,7 +182,8 @@ const EnhancedLogin = () => {
   <h2 className="text-xl font-semibold text-green-700 mb-2">Farmer Login</h2>
   <p className="text-gray-600">Welcome back to SmartKheti</p>
 </div>
-            
+          </div>
+
           {/* Message Display */}
           {message && (
             <div
