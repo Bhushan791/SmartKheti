@@ -14,6 +14,10 @@ const processImageUrls = (listing) => {
       return img;
     });
   }
+
+
+
+
   
   // Process video URL
   if (listing.video && !listing.video.startsWith('http')) {
