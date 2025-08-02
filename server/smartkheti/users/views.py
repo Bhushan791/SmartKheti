@@ -123,19 +123,7 @@ class VeriifyOTPAndChangePasswordView(APIView):
 
 
 def home(reqeust):
-    return HttpResponse("Smartkheti APIS Laoded Successfully, Good to Go!")
+    return HttpResponse("Smartkheti APIS Laoded Successfully, Good to Go!  APIS-CREATED-BY: << BHUSHAN >>")
 
 
 
-
-
-def create_superuser_view(request):
-    User = get_user_model()
-    if not User.objects.filter(phone='9848800708').exists():
-        User.objects.create_superuser(
-            phone='9848800708',
-            email='bhushanbhatta777@gmail.com',
-            password='skadmin123'
-        )
-        return JsonResponse({'status': 'superuser created'})
-    return JsonResponse({'status': 'superuser already exists'})
