@@ -18,13 +18,18 @@ ALLOWED_HOSTS = ['*']
 
 # APPLICATIONS
 INSTALLED_APPS = [
+    ##admin panel css
     'jazzmin',
+
+    #djando default
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    ##for DRF
     'corsheaders',
     'phonenumber_field',
     'rest_framework',
@@ -36,6 +41,10 @@ INSTALLED_APPS = [
     'weather',
     'marketplace',
     'reports',
+
+    ##cloud medias
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 # MIDDLEWARE
@@ -137,6 +146,17 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Add missing closing quote
 # Add these lines for WhiteNoise:
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+
+
+#Cloudinary Settings
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
 
 
 MEDIA_URL = '/media/'

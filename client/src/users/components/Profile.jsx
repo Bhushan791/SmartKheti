@@ -13,12 +13,10 @@ const EnhancedProfile = () => {
   const [message, setMessage] = useState("")
   const [showChangePassword, setShowChangePassword] = useState(false)
 
-  const getImageUrl = (imagePath) => {
+const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
-  // If the path already includes http/https, return as is
-  if (imagePath.startsWith('http')) return imagePath;
-  // Otherwise, prepend your backend URL
-  return `http://localhost:8000${imagePath}`;
+  // Cloudinary URLs are full URLs, so just return as is
+  return imagePath;
 };
   useEffect(() => {
     if (!auth.isAuthenticated()) {

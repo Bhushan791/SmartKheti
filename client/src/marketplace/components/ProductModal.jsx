@@ -94,41 +94,23 @@ const ProductModal = ({ listing, onClose }) => {
   }
 
 // In ProductModal.jsx - Replace the getImages function:
-
 const getImages = () => {
   if (listing.images && listing.images.length > 0) {
     return listing.images.map((img) => {
       const imagePath = img.image || img;
-      // If already a full URL, return as is
-      if (imagePath && imagePath.startsWith('http')) {
-        return imagePath;
-      }
-      // Otherwise, prepend backend URL
-      return imagePath ? `http://localhost:8000${imagePath}` : "/placeholder.svg?height=400&width=600";
+      // Directly return imagePath assuming full Cloudinary URL or fallback
+      return imagePath || "/placeholder.svg?height=400&width=600";
     });
   }
   return ["/placeholder.svg?height=400&width=600"];
 };
 
-// Also fix the video URL in the same file:
-// Replace the video source line:
-// REPLACE the video source line with this:
+// For video source in JSX:
 <source 
-  src={listing.video && !listing.video.startsWith('http') 
-    ? `http://localhost:8000${listing.video}` 
-    : listing.video} 
+  src={listing.video} 
   type="video/mp4" 
 />
 
-  const images = getImages()
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  }
 
   return (
     <div style={modalStyle} onClick={onClose}>

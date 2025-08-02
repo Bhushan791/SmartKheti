@@ -25,15 +25,12 @@ const EnhancedProductCard = ({ listing, isOwner = false, onEdit, onDelete, onCli
 const getImageUrl = () => {
   if (listing.images && listing.images.length > 0) {
     const imagePath = listing.images[0].image || listing.images[0];
-    // If already a full URL, return as is
-    if (imagePath && imagePath.startsWith('http')) {
-      return imagePath;
-    }
-    // Otherwise, prepend backend URL
-    return imagePath ? `http://localhost:8000${imagePath}` : "/placeholder.svg?height=200&width=300";
+    // Return the Cloudinary full URL or fallback placeholder
+    return imagePath || "/placeholder.svg?height=200&width=300";
   }
   return "/placeholder.svg?height=200&width=300";
 };
+
 
   const getCategoryColor = (category) => {
     const colors = {

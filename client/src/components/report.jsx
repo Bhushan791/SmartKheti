@@ -36,7 +36,7 @@ const Report = () => {
     setError("")
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/disease_detection/admin/detections/`, {
+      const response = await fetch(`${process.env.VITE_APP_API_BASE_URL}/disease_detection/admin/detections/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
