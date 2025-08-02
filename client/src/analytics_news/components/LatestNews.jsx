@@ -9,8 +9,8 @@ const LatestNews = () => {
   const [featuredNews, setFeaturedNews] = useState(null)
   const [hasInitialized, setHasInitialized] = useState(false) // New state to track if news has been loaded
 
-  // const API_KEY = "582f1543b02146c78969b480c237f94b"
-//   const API_KEY = "582f1543b02146c78969b480c237f94b"
+  const API_KEY = "582f1543b02146c78969b480c237f94b"
+
 
   // Comprehensive fallback image sources for Nepal/agriculture/farming
   const fallbackImages = [
