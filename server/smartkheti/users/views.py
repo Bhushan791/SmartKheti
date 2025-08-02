@@ -4,11 +4,13 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from .models import User,OTPrequest
 from .serializers import UserSerializer
+from django.http import HttpResponse
 
 
 import random
 from django.contrib.auth import get_user_model
 
+from django.http import JsonResponse
 
 
 ##Register View
@@ -114,3 +116,26 @@ class VeriifyOTPAndChangePasswordView(APIView):
         user.save()
 
         return Response({'message': 'Password changed successfully'}, status=200)
+
+
+
+
+
+
+def home(reqeust):
+    return HttpResponse("Smartkheti APIS Laoded Successfully, Good to Go!")
+
+
+
+
+
+def create_superuser_view(request):
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            phone='9848800708',
+            email='bhushanbhatta777@gmail.com',
+            password='skadmin123'
+        )
+        return JsonResponse({'status': 'superuser created'})
+    return JsonResponse({'status': 'superuser already exists'})

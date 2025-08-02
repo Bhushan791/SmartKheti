@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("API BASE URL:", API_BASE_URL);
 
 // Generic API call function with token handling
 export const apiCall = async (endpoint, options = {}) => {

@@ -2,9 +2,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from users.views import home,create_superuser_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('create-superuser/', create_superuser_view), 
+    path('', home),
     path('api/users/', include('users.urls')),  
     path('api/disease_detection/', include('disease_detection.urls')),
     path('api/weather/', include('weather.urls')),
@@ -12,4 +15,5 @@ urlpatterns = [
     path('api/reports/', include('reports.urls')),
 ]
 if settings.DEBUG:
+
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
