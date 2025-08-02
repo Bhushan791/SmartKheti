@@ -131,7 +131,7 @@ def home(reqeust):
 
 def create_superuser_view(request):
     User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
+    if not User.objects.filter(phone='9848800708').exists():
         User.objects.create_superuser(
             phone='9848800708',
             email='bhushanbhatta777@gmail.com',
