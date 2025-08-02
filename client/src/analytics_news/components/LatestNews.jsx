@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 
 const LatestNews = () => {
   const [news, setNews] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Changed from true to false
   const [error, setError] = useState(null)
   const [featuredNews, setFeaturedNews] = useState(null)
+  const [hasInitialized, setHasInitialized] = useState(false) // New state to track if news has been loaded
 
   // const API_KEY = "582f1543b02146c78969b480c237f94b"
 //   const API_KEY = "582f1543b02146c78969b480c237f94b"
@@ -50,17 +51,14 @@ const LatestNews = () => {
     }
   }
 
-  useEffect(() => {
-    fetchNews()
-    // Refresh news every 30 minutes
-    const interval = setInterval(fetchNews, 30 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [])
+  // Removed the automatic useEffect that was loading news on mount
+  // Now news will only load when user clicks the load button
 
   const fetchNews = async () => {
     try {
       setLoading(true)
       setError(null)
+      setHasInitialized(true) // Mark as initialized when user first loads news
 
       // Enhanced search strategies specifically for Nepal news
       const searchQueries = [
@@ -181,6 +179,12 @@ const LatestNews = () => {
       if (filteredNews.length > 0) {
         setFeaturedNews(filteredNews[0])
       }
+
+      // Set up auto-refresh only after initial manual load
+      if (!hasInitialized) {
+        const interval = setInterval(fetchNews, 30 * 60 * 1000) // Refresh every 30 minutes
+        return () => clearInterval(interval)
+      }
     } catch (error) {
       console.error("Error fetching news:", error)
       setError(error.message)
@@ -201,6 +205,49 @@ const LatestNews = () => {
     if (diffInDays < 7) return `${diffInDays} दिन अगाडि`
 
     return publishedDate.toLocaleDateString('ne-NP')
+  }
+
+  // Show initial state when news hasn't been loaded yet
+  if (!hasInitialized && !loading) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold mb-2 flex items-center gap-3">
+                <span className="text-3xl">🇳🇵</span>
+                आजको नेपाली समाचार (Today's Nepal Nutshell)
+              </h2>
+              <p className="text-red-100">नेपालका ताजा समाचार र जानकारी</p>
+            </div>
+            <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-1 rounded-full">
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-sm font-medium">READY</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Load News Button */}
+        <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+          <div className="text-6xl mb-4">📰</div>
+          <h3 className="text-2xl font-bold text-gray-700 mb-2">समाचार लोड गर्नुहोस्</h3>
+          <p className="text-gray-500 mb-6">
+            नेपालका ताजा समाचारहरू हेर्न तलको बटन थिच्नुहोस्
+          </p>
+          <button
+            onClick={fetchNews}
+            className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2 mx-auto"
+          >
+            <span className="text-lg">📡</span>
+            समाचार लोड गर्नुहोस्
+          </button>
+          <p className="text-xs text-gray-400 mt-4">
+            समाचार लोड गरेपछि प्रत्येक ३० मिनेटमा स्वचालित रूपमा अपडेट हुनेछ
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
@@ -251,9 +298,18 @@ const LatestNews = () => {
             </h2>
             <p className="text-red-100">नेपालका ताजा समाचार र जानकारी</p>
           </div>
-          <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-1 rounded-full">
-            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">LIVE</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-1 rounded-full">
+              <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium">LIVE</span>
+            </div>
+            <button
+              onClick={fetchNews}
+              className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2"
+            >
+              <span className="text-base">🔄</span>
+              Refresh
+            </button>
           </div>
         </div>
       </div>
@@ -395,7 +451,7 @@ const LatestNews = () => {
       )}
 
       {/* No News State */}
-      {news.length === 0 && !loading && (
+      {news.length === 0 && !loading && hasInitialized && (
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
           <div className="text-6xl mb-4">🇳🇵</div>
           <h3 className="text-2xl font-bold text-gray-700 mb-2">कुनै समाचार उपलब्ध छैन</h3>
@@ -446,4 +502,3 @@ const LatestNews = () => {
 }
 
 export default LatestNews
-

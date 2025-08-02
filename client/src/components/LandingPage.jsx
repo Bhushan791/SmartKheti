@@ -66,90 +66,97 @@ const EnhancedLandingPage = () => {
       {/* Hero Section */}
 {/* Hero Section */}
       {/* Hero Section */}
-      <section className="relative text-white overflow-hidden">
-        {/* Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          onError={(e) => console.log('Video failed to load:', e)}
-        >
-          <source src={videoSrc} type="video/mp4" />
-          {/* <source src="./assets/video.mp4" type="video/mp4" />
-          <source src="/assets/video.mp4" type="video/mp4" /> */}
-        </video>
+<section className="relative text-white overflow-hidden">
+  {/* Video Background */}
+  <video
+    autoPlay
+    muted
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover"
+    onError={(e) => console.log('Video failed to load:', e)}
+  >
+    <source src={videoSrc} type="video/mp4" />
+    {/* <source src="./assets/video.mp4" type="video/mp4" />
+    <source src="/assets/video.mp4" type="video/mp4" /> */}
+  </video>
+  
+  {/* Dark overlay for better text readability */}
+  <div className="absolute inset-0 bg-black opacity-50"></div>
+  
+  <div className="relative container mx-auto px-6 py-20 lg:py-28">
+    <div className="text-center max-w-4xl mx-auto">
+      <div className="mb-8">
+        {/* Updated h1 with logo */}
+        <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-green-100 bg-clip-text text-transparent flex items-center justify-center gap-4 flex-wrap">
+          <img 
+            src="/sklogo.png" 
+            alt="SmartKheti Logo" 
+            className="w-16 h-16 lg:w-24 lg:h-24 object-contain drop-shadow-lg"
+          />
+          SmartKheti
+        </h1>
         
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative container mx-auto px-6 py-20 lg:py-28">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-green-100 bg-clip-text text-transparent">
-                🌾 SmartKheti
-              </h1>
-              <p className="text-xl lg:text-2xl mb-4 text-green-100 font-medium">
-                Empowering Nepali Farmers with Smart Agriculture Technology
-              </p>
-              <p className="text-lg text-green-200 max-w-3xl mx-auto leading-relaxed">
-                Join thousands of farmers across Nepal who are revolutionizing their farming with AI-powered disease
-                detection, smart weather forecasting, and direct marketplace access.
-              </p>
-            </div>
+        <p className="text-xl lg:text-2xl mb-4 text-green-100 font-medium">
+          Empowering Nepali Farmers with Smart Agriculture Technology
+        </p>
+        
+        <p className="text-lg text-green-200 max-w-3xl mx-auto leading-relaxed">
+          Join thousands of farmers across Nepal who are revolutionizing their farming with AI-powered disease
+          detection, smart weather forecasting, and direct marketplace access.
+        </p>
+      </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <a
-                href="/marketplace"
-                className="group bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center gap-2"
-              >
-                🛒 Explore Marketplace
-                <svg
-                  className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </a>
-<a
-  href="/login"
-  className="group bg-gradient-to-r from-blue-500 to-blue-600 
-             hover:from-blue-400 hover:to-blue-700 
-             border-2 border-blue-400 hover:border-blue-500 
-             text-white px-8 py-4 rounded-xl font-semibold text-lg 
-             transition-all duration-300 transform hover:scale-105 
-             hover:shadow-xl flex items-center gap-2"
->
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <a
+          href="/marketplace"
+          className="group bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center gap-2"
+        >
+          🛒 Explore Marketplace
+          <svg
+            className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+        
+        <a
+          href="/login"
+          className="group bg-gradient-to-r from-blue-500 to-blue-600 
+                     hover:from-blue-400 hover:to-blue-700 
+                     border-2 border-blue-400 hover:border-blue-500 
+                     text-white px-8 py-4 rounded-xl font-semibold text-lg 
+                     transition-all duration-300 transform hover:scale-105 
+                     hover:shadow-xl flex items-center gap-2"
+        >
+          🚜 Continue as Farmer
+          <svg
+            className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
 
-                🚜 Continue as Farmer
-                <svg
-                  className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </a>
-            </div>
-
-            <div className="text-green-200">
-              <p className="text-base">
-                New to SmartKheti?{" "}
-                <a
-                  href="/register"
-                  className="text-amber-300 hover:text-amber-200 underline font-medium transition-colors"
-                >
-                  Register as Farmer
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <div className="text-green-200">
+        <p className="text-base">
+          New to SmartKheti?{" "}
+          <a
+            href="/register"
+            className="text-amber-300 hover:text-amber-200 underline font-medium transition-colors"
+          >
+            Register as Farmer
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
       {/* Scrolling News Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 overflow-hidden">
         <div className="animate-marquee whitespace-nowrap">

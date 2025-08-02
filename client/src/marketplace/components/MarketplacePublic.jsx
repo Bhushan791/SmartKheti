@@ -60,17 +60,21 @@ const EnhancedMarketplacePublic = () => {
 
       {/* Header */}
       <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-4">
-              <a href="/" className="flex items-center gap-3 text-green-800 hover:text-green-700 transition-colors">
-                <span className="text-3xl">🌾</span>
-                <div>
-                  <h1 className="text-xl lg:text-2xl font-bold">SmartKheti</h1>
-                  <p className="text-sm text-gray-600 hidden sm:block">Agricultural Marketplace</p>
-                </div>
-              </a>
-            </div>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between h-16 lg:h-20">
+      <div className="flex items-center gap-4">
+        <a href="/" className="flex items-center gap-3 text-green-800 hover:text-green-700 transition-colors">
+          <img 
+            src="/sklogo.png" 
+            alt="SmartKheti Logo" 
+            className="w-8 h-8 lg:w-12 lg:h-12 object-contain"
+          />
+          <div>
+            <h1 className="text-xl lg:text-2xl font-bold">SmartKheti</h1>
+            <p className="text-sm text-gray-600 hidden sm:block">Agricultural Marketplace</p>
+          </div>
+        </a>
+      </div>
             <div className="flex items-center gap-3">
               <a
                 href="/register"

@@ -202,9 +202,18 @@ const EnhancedRegister = () => {
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-              🌾
-            </div>
+<div className="text-center mb-8">
+  <div className="w-24 h-24 mx-auto mb-4">
+    <img 
+      src="/sklogo.png" 
+      alt="SmartKheti Logo" 
+      className="w-full h-full object-contain drop-shadow-lg"
+    />
+  </div>
+  <h1 className="text-3xl font-bold text-gray-800 mb-2">SmartKheti</h1>
+  <h2 className="text-xl font-semibold text-green-700 mb-2">Farmer Login</h2>
+  <p className="text-gray-600">Welcome back to SmartKheti</p>
+</div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Farmer Account</h1>
             <p className="text-gray-600">Join the SmartKheti community</p>
           </div>
