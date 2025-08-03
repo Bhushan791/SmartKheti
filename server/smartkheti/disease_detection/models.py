@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 
 class DiseaseInfo(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,)
     crop = models.CharField(max_length=50)
     short_remedy = models.TextField()
     treatment = models.TextField()
@@ -12,6 +12,7 @@ class DiseaseInfo(models.Model):
 
     def __str__(self):
         return f"{self.crop} - {self.name}"
+
 
 
 class Product(models.Model):

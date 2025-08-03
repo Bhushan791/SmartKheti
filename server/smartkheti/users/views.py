@@ -120,10 +120,15 @@ class VeriifyOTPAndChangePasswordView(APIView):
 
 
 
+from django.http import HttpResponse
 
-
-def home(reqeust):
-    return HttpResponse("Smartkheti APIS Laoded Successfully, Good to Go!  APIS-CREATED-BY: <<< BHUSHAN >>>")
-
-
-
+def home(request):
+    return HttpResponse("""
+        <div style="background-color:#f0f8ff;padding:20px;font-family:sans-serif;">
+            <h2 style="color:#2e8b57;">SmartKheti APIs Loaded Successfully</h2>
+            <p style="color:#555;font-size:16px;">
+                Good to Go!<br>
+                <strong style="color:#ff4500;">APIs created by: &lt;&lt;&lt; BHUSHAN &gt;&gt;&gt;</strong>
+            </p>
+        </div>
+    """)
