@@ -1,16 +1,59 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { marketplaceAPI } from "../api"
 import ProductCard from "./ProductCard"
 import ProductModal from "./ProductModal"
+
+// Helper function to extract a user-friendly error message from various error formats
+const getErrorMessage = (error) => {
+  if (error.response && error.response.data) {
+    const responseData = error.response.data
+    if (typeof responseData === "string") {
+      // If the response data is a raw string (e.g., HTML error page)
+      return "An unexpected error occurred. Please try again later."
+    } else if (responseData.message) {
+      // If the response data has a 'message' property
+      return responseData.message
+    } else if (typeof responseData === "object") {
+      // If the response data is a nested JSON object (e.g., validation errors)
+      const messages = []
+      for (const key in responseData) {
+        if (Object.prototype.hasOwnProperty.call(responseData, key)) {
+          const value = responseData[key]
+          if (Array.isArray(value)) {
+            messages.push(`${key}: ${value.join(", ")}`)
+          } else if (typeof value === "object") {
+            // Handle nested objects, e.g., {"images":{"0":["..."]}}
+            for (const subKey in value) {
+              if (Object.prototype.hasOwnProperty.call(value, subKey)) {
+                const subValue = value[subKey]
+                if (Array.isArray(subValue)) {
+                  messages.push(`${key} ${subKey}: ${subValue.join(", ")}`)
+                } else {
+                  messages.push(`${key} ${subKey}: ${subValue}`)
+                }
+              }
+            }
+          } else {
+            messages.push(`${key}: ${value}`)
+          }
+        }
+      }
+      return messages.length > 0 ? messages.join("; ") : "An unknown error occurred."
+    }
+  } else if (error.message) {
+    // Generic error message from the Error object
+    return error.message
+  }
+  return "An unexpected error occurred. Please try again."
+}
 
 const EnhancedMarketplacePublic = () => {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedListing, setSelectedListing] = useState(null)
-  const [message, setMessage] = useState("")
+  const [message, setMessage] = useState("") // This state will now control the error message display
   const [categories] = useState(["All", "Vegetable", "Fruit", "Grain", "Spice"])
   const [selectedCategory, setSelectedCategory] = useState("All")
 
@@ -21,11 +64,12 @@ const EnhancedMarketplacePublic = () => {
   const fetchListings = async () => {
     try {
       setLoading(true)
+      setMessage("") // Clear any previous messages
       const response = await marketplaceAPI.getAllListings()
       setListings(response.data || [])
     } catch (error) {
       console.error("Failed to fetch listings:", error)
-      setMessage("Failed to load listings")
+      setMessage(getErrorMessage(error)) // Use the helper function
     } finally {
       setLoading(false)
     }
@@ -34,11 +78,12 @@ const EnhancedMarketplacePublic = () => {
   const handleSearch = async () => {
     try {
       setLoading(true)
+      setMessage("") // Clear any previous messages
       const response = await marketplaceAPI.getAllListings(searchQuery)
       setListings(response.data || [])
     } catch (error) {
       console.error("Search failed:", error)
-      setMessage("Search failed")
+      setMessage(getErrorMessage(error)) // Use the helper function
     } finally {
       setLoading(false)
     }
@@ -57,24 +102,19 @@ const EnhancedMarketplacePublic = () => {
         <div className="absolute bottom-20 right-10 w-24 h-24 bg-amber-200 rounded-full opacity-30 animate-bounce"></div>
         <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-emerald-200 rounded-full opacity-25 animate-pulse delay-1000"></div>
       </div>
-
       {/* Header */}
       <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex items-center justify-between h-16 lg:h-20">
-      <div className="flex items-center gap-4">
-        <a href="/" className="flex items-center gap-3 text-green-800 hover:text-green-700 transition-colors">
-          <img 
-            src="/sklogo.png" 
-            alt="SmartKheti Logo" 
-            className="w-8 h-8 lg:w-12 lg:h-12 object-contain"
-          />
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold">SmartKheti</h1>
-            <p className="text-sm text-gray-600 hidden sm:block">Agricultural Marketplace</p>
-          </div>
-        </a>
-      </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            <div className="flex items-center gap-4">
+              <a href="/" className="flex items-center gap-3 text-green-800 hover:text-green-700 transition-colors">
+                <img src="/sklogo.png" alt="SmartKheti Logo" className="w-8 h-8 lg:w-12 lg:h-12 object-contain" />
+                <div>
+                  <h1 className="text-xl lg:text-2xl font-bold">SmartKheti</h1>
+                  <p className="text-sm text-gray-600 hidden sm:block">Agricultural Marketplace</p>
+                </div>
+              </a>
+            </div>
             <div className="flex items-center gap-3">
               <a
                 href="/register"
@@ -93,7 +133,6 @@ const EnhancedMarketplacePublic = () => {
           </div>
         </div>
       </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <section className="bg-white rounded-3xl shadow-lg p-6 lg:p-12 mb-8 border border-gray-100 text-center">
@@ -118,7 +157,6 @@ const EnhancedMarketplacePublic = () => {
             </div>
           </div>
         </section>
-
         {/* Search and Filter Section */}
         <section className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
           <div className="space-y-6">
@@ -170,7 +208,6 @@ const EnhancedMarketplacePublic = () => {
                 </button>
               </div>
             </div>
-
             {/* Category Filter */}
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-3">Filter by Category</h3>
@@ -192,10 +229,9 @@ const EnhancedMarketplacePublic = () => {
             </div>
           </div>
         </section>
-
         {/* Message */}
         {message && (
-          <div className="bg-red-50 text-red-800 border border-red-200 p-4 rounded-xl mb-8">
+          <div className="bg-red-50 text-red-800 border border-red-200 p-4 rounded-xl mb-8 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -206,9 +242,19 @@ const EnhancedMarketplacePublic = () => {
               </svg>
               <span className="font-medium">{message}</span>
             </div>
+            <button onClick={() => setMessage("")} className="p-1 rounded-full hover:bg-red-100 text-red-800">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
         )}
-
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -216,7 +262,6 @@ const EnhancedMarketplacePublic = () => {
             <span className="text-lg text-gray-500 ml-2">({filteredListings.length} found)</span>
           </h2>
         </div>
-
         {/* Listings Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -260,52 +305,49 @@ const EnhancedMarketplacePublic = () => {
             ))}
           </div>
         )}
-
         {/* Call to Action */}
-      <section className="bg-gradient-to-r from-green-900 via-green-800 to-emerald-900 text-white rounded-3xl p-8 lg:p-12 text-center shadow-2xl">
-  <div className="max-w-4xl mx-auto">
-    <h2 className="text-3xl lg:text-4xl font-bold mb-4">Are you a farmer?</h2>
-    <p className="text-lg lg:text-xl mb-8 text-white">
-      Join SmartKheti marketplace and start selling your crops directly to customers across Nepal
-    </p>
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-      <a
-        href="/register"
-        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
-      >
-        <span className="text-xl">📝</span>
-        Register as Farmer
-      </a>
-      <a
-        href="/login"
-        className="border-2 border-white text-white hover:bg-white hover:text-green-900 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-      >
-        <span className="text-xl">🔑</span>
-        Login
-      </a>
-    </div>
-    <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-      <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
-        <div className="text-3xl mb-2">🌱</div>
-        <h3 className="font-bold mb-2 text-white">Grow Your Business</h3>
-        <p className="text-white text-sm">Reach thousands of customers</p>
-      </div>
-      <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
-        <div className="text-3xl mb-2">💰</div>
-        <h3 className="font-bold mb-2 text-white">Fair Pricing</h3>
-        <p className="text-white text-sm">Set your own competitive prices</p>
-      </div>
-      <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
-        <div className="text-3xl mb-2">📱</div>
-        <h3 className="font-bold mb-2 text-white">Easy to Use</h3>
-        <p className="text-white text-sm">Simple listing and management</p>
-      </div>
-    </div>
-  </div>
-</section>
-
+        <section className="bg-gradient-to-r from-green-900 via-green-800 to-emerald-900 text-white rounded-3xl p-8 lg:p-12 text-center shadow-2xl">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Are you a farmer?</h2>
+            <p className="text-lg lg:text-xl mb-8 text-white">
+              Join SmartKheti marketplace and start selling your crops directly to customers across Nepal
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/register"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                <span className="text-xl">📝</span>
+                Register as Farmer
+              </a>
+              <a
+                href="/login"
+                className="border-2 border-white text-white hover:bg-white hover:text-green-900 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+              >
+                <span className="text-xl">🔑</span>
+                Login
+              </a>
+            </div>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="text-3xl mb-2">🌱</div>
+                <h3 className="font-bold mb-2 text-white">Grow Your Business</h3>
+                <p className="text-white text-sm">Reach thousands of customers</p>
+              </div>
+              <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="text-3xl mb-2">💰</div>
+                <h3 className="font-bold mb-2 text-white">Fair Pricing</h3>
+                <p className="text-white text-sm">Set your own competitive prices</p>
+              </div>
+              <div className="bg-white/30 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="text-3xl mb-2">📱</div>
+                <h3 className="font-bold mb-2 text-white">Easy to Use</h3>
+                <p className="text-white text-sm">Simple listing and management</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
-
       {/* Product Modal */}
       {selectedListing && <ProductModal listing={selectedListing} onClose={() => setSelectedListing(null)} />}
     </div>

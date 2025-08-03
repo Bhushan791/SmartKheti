@@ -36,12 +36,15 @@ const Report = () => {
     setError("")
 
     try {
-      const response = await fetch(`${process.env.VITE_APP_API_BASE_URL}/disease_detection/admin/detections/`, {
+      // Fix: Use import.meta.env instead of process.env for Vite
+      const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL || 'http://127.0.0.1:8000/api'
+      
+      const response = await fetch(`${apiBaseUrl}/disease_detection/admin/detections/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 10000, // 10 second timeout
+        // Note: fetch doesn't have a timeout option, we'll implement it differently
       })
 
       if (!response.ok) {
@@ -65,6 +68,67 @@ const Report = () => {
         // Retry up to 2 times
         setTimeout(() => {
           fetchDetectionData(retryCount + 1)
+        }, 2000 * (retryCount + 1)) // Exponential backoff
+      } else {
+        let errorMessage = "Failed to load detection data. "
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          errorMessage += "Please check your internet connection and ensure the server is running."
+        } else if (error.message.includes('timeout')) {
+          errorMessage += "Request timed out. Please try again."
+        } else {
+          errorMessage += error.message
+        }
+        setError(errorMessage)
+        setLoading(false)
+      }
+    }
+  }
+
+  // Alternative fetchDetectionData with timeout implementation
+  const fetchDetectionDataWithTimeout = async (retryCount = 0) => {
+    setLoading(true)
+    setError("")
+
+    try {
+      const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL || 'http://127.0.0.1:8000/api'
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      )
+
+      // Create the fetch promise
+      const fetchPromise = fetch(`${apiBaseUrl}/disease_detection/admin/detections/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      // Race between fetch and timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise])
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch detection data`)
+      }
+
+      const data = await response.json()
+      console.log('Fetched data:', data)
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received from server')
+      }
+      
+      setDetectionData(data)
+      processAnalytics(data)
+      setLoading(false)
+    } catch (error) {
+      console.error("Failed to fetch detection data:", error)
+      
+      if (retryCount < 2) {
+        // Retry up to 2 times
+        setTimeout(() => {
+          fetchDetectionDataWithTimeout(retryCount + 1)
         }, 2000 * (retryCount + 1)) // Exponential backoff
       } else {
         let errorMessage = "Failed to load detection data. "
@@ -609,8 +673,6 @@ const Report = () => {
               </div>
             )}
 
-
-
             {/* Recent Detections */}
             {analytics.recentDetections.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
@@ -622,7 +684,6 @@ const Report = () => {
                   <table className="min-w-full">
                     <thead>
                       <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Date & Time</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Disease Detected</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
                       </tr>
@@ -788,4 +849,3 @@ const Report = () => {
 }
 
 export default Report
-

@@ -5,6 +5,31 @@ import { useState } from "react"
 const ProductModal = ({ listing, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
+  // Fix: Actually use the getImages function and define images
+  const getImages = () => {
+    if (listing.images && listing.images.length > 0) {
+      return listing.images.map((img) => {
+        const imagePath = img.image || img;
+        // Directly return imagePath assuming full Cloudinary URL or fallback
+        return imagePath || "/placeholder.svg?height=400&width=600";
+      });
+    }
+    return ["/placeholder.svg?height=400&width=600"];
+  };
+
+  // Define images variable by calling the function
+  const images = getImages();
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const modalStyle = {
     position: "fixed",
     top: 0,
@@ -92,25 +117,6 @@ const ProductModal = ({ listing, onClose }) => {
       minimumFractionDigits: 0,
     }).format(price)
   }
-
-// In ProductModal.jsx - Replace the getImages function:
-const getImages = () => {
-  if (listing.images && listing.images.length > 0) {
-    return listing.images.map((img) => {
-      const imagePath = img.image || img;
-      // Directly return imagePath assuming full Cloudinary URL or fallback
-      return imagePath || "/placeholder.svg?height=400&width=600";
-    });
-  }
-  return ["/placeholder.svg?height=400&width=600"];
-};
-
-// For video source in JSX:
-<source 
-  src={listing.video} 
-  type="video/mp4" 
-/>
-
 
   return (
     <div style={modalStyle} onClick={onClose}>
