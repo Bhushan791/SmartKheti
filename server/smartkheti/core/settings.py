@@ -21,7 +21,7 @@ INSTALLED_APPS = [
     ##admin panel css
     'jazzmin',
 
-    #djando default
+    #django default
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,9 +43,9 @@ INSTALLED_APPS = [
     'reports',
 
     ##cloud medias
+    'cloudinary_storage',  # ← Add this line
     'cloudinary',
 ]
-
 # MIDDLEWARE
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -157,6 +157,12 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
+if not all([
+    os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    os.environ.get('CLOUDINARY_API_KEY'),
+    os.environ.get('CLOUDINARY_API_SECRET')
+]):
+    print("WARNING: Cloudinary environment variables not set!", file=sys.stderr)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
