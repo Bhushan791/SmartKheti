@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 
 const LatestNews = () => {
   const [news, setNews] = useState([])
-  const [loading, setLoading] = useState(false) // Changed from true to false
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [featuredNews, setFeaturedNews] = useState(null)
-  const [hasInitialized, setHasInitialized] = useState(false) // New state to track if news has been loaded
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-  const API_KEY = "582f1543b02146c78969b480c237f94b"
-
+  // Get API base URL from environment variables
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
   // Comprehensive fallback image sources for Nepal/agriculture/farming
   const fallbackImages = [
@@ -51,133 +51,37 @@ const LatestNews = () => {
     }
   }
 
-  // Removed the automatic useEffect that was loading news on mount
-  // Now news will only load when user clicks the load button
-
   const fetchNews = async () => {
     try {
       setLoading(true)
       setError(null)
       setHasInitialized(true) // Mark as initialized when user first loads news
 
-      // Enhanced search strategies specifically for Nepal news
-      const searchQueries = [
-        // Nepal-specific searches
-        'Nepal',
-        'Nepal+news',
-        'Nepal+politics',
-        'Nepal+economy',
-        'Nepal+development',
-        'Kathmandu',
-        'Nepal+government',
-        'Nepal+society',
-        'Nepal+culture',
-        'Nepal+business',
-        'Nepal+technology',
-        'Nepal+education',
-        'Nepal+health',
-        'Nepal+tourism',
-        'Nepal+environment',
-        // Nepali language terms
-        'नेपाल',
-        'काठमाडौं',
-        'नेपाली+समाचार',
-        'नेपाल+सरकार',
-        // Agriculture specific to Nepal
-        'Nepal+agriculture',
-        'Nepal+farming',
-        'कृषि+नेपाल',
-        'Nepal+rice+farming',
-        'Nepal+wheat+production',
-        'Nepal+farmers',
-        'किसान+नेपाल'
-      ]
+      // Call your backend API instead of NewsAPI directly
+      const response = await fetch(`${API_BASE_URL}/marketplace/news/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-      let allArticles = []
-
-      // Try NewsAPI with country parameter for Nepal (np)
-      try {
-        const countryUrl = `https://newsapi.org/v2/top-headlines?country=np&pageSize=20&apiKey=${API_KEY}`
-        const countryResponse = await fetch(countryUrl)
-        const countryData = await countryResponse.json()
-        
-        if (countryData.status === "ok" && countryData.articles) {
-          allArticles = [...allArticles, ...countryData.articles]
-        }
-      } catch (err) {
-        console.log("Failed to fetch Nepal country headlines:", err)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      // Try each search query with everything endpoint
-      for (const query of searchQueries) {
-        const url = `https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&pageSize=10&from=${new Date(Date.now() - 7*24*60*60*1000).toISOString()}&apiKey=${API_KEY}`
-        
-        try {
-          const response = await fetch(url)
-          const queryData = await response.json()
-          
-          if (queryData.status === "error") {
-            console.warn(`API error for query ${query}:`, queryData.message)
-            continue
-          }
-          
-          if (queryData.articles && queryData.articles.length > 0) {
-            allArticles = [...allArticles, ...queryData.articles]
-          }
-        } catch (err) {
-          console.log(`Failed to fetch for query: ${query}`, err)
-        }
+      const data = await response.json()
+
+      if (data.status === 'error') {
+        throw new Error(data.message || 'Failed to fetch news')
       }
 
-      if (allArticles.length === 0) {
+      if (!data.articles || data.articles.length === 0) {
         throw new Error("No Nepal news found. Please try again later.")
       }
 
-      // Remove duplicates and filter for Nepal-related content
-      const uniqueArticles = allArticles.filter((article, index, self) => 
-        index === self.findIndex(a => a.title === article.title)
-      )
-
-      const filteredNews = uniqueArticles
-        .filter((article) => {
-          if (!article.title || !article.description) return false
-          
-          const title = article.title.toLowerCase()
-          const description = article.description.toLowerCase()
-          const content = (article.content || "").toLowerCase()
-          
-          // Remove removed content
-          if (title.includes("[removed]") || description.includes("[removed]")) return false
-          
-          // Prioritize Nepal-related content
-          const nepalKeywords = [
-            'nepal', 'nepali', 'nepalese', 'kathmandu', 'pokhara', 'lalitpur', 'bhaktapur',
-            'himalaya', 'everest', 'sagarmatha', 'koshi', 'gandaki', 'lumbini',
-            'नेपाल', 'नेपाली', 'काठमाडौं', 'पोखरा', 'ललितपुर', 'भक्तपुर',
-            'हिमालय', 'सगरमाथा', 'कोशी', 'गण्डकी', 'लुम्बिनी',
-            // Government and politics
-            'oli', 'prachanda', 'deuba', 'bhandari', 'parliament', 'constituent assembly',
-            'communist party', 'congress', 'uml', 'maoist',
-            // Agriculture terms
-            'कृषि', 'खेती', 'किसान', 'धान', 'गहुँ', 'मकै', 'तरकारी', 'फल',
-            'agriculture', 'farming', 'farmer', 'rice', 'wheat', 'maize', 'vegetable', 'fruit',
-            // Economy and development
-            'rupee', 'economy', 'development', 'infrastructure', 'trade', 'export', 'import',
-            'remittance', 'tourism', 'hydropower', 'electricity'
-          ]
-          
-          const hasNepalContent = nepalKeywords.some(keyword => 
-            title.includes(keyword) || description.includes(keyword) || content.includes(keyword)
-          )
-          
-          return hasNepalContent
-        })
-        .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
-        .slice(0, 25)
-
-      setNews(filteredNews)
-      if (filteredNews.length > 0) {
-        setFeaturedNews(filteredNews[0])
+      setNews(data.articles)
+      if (data.articles.length > 0) {
+        setFeaturedNews(data.articles[0])
       }
 
       // Set up auto-refresh only after initial manual load

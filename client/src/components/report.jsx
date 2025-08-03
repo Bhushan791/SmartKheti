@@ -1,6 +1,10 @@
 "use client"
 
+
 import { useState, useEffect } from "react"
+
+
+import { apiCall } from "../common/api"
 
 const Report = () => {
   const [detectionData, setDetectionData] = useState([])
@@ -30,59 +34,48 @@ const Report = () => {
   useEffect(() => {
     fetchDetectionData()
   }, [])
+const fetchDetectionData = async (retryCount = 0) => {
+  setLoading(true)
+  setError("")
 
-  const fetchDetectionData = async (retryCount = 0) => {
-    setLoading(true)
-    setError("")
+  try {
+    // Use the generic apiCall helper with endpoint only (no full URL)
+    const { data, status } = await apiCall("/disease_detection/admin/detections/", {
+      method: "GET",
+    })
 
-    try {
-      // Fix: Use import.meta.env instead of process.env for Vite
-      const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL || 'http://127.0.0.1:8000/api'
-      
-      const response = await fetch(`${apiBaseUrl}/disease_detection/admin/detections/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // Note: fetch doesn't have a timeout option, we'll implement it differently
-      })
+    console.log("API fetchDetectionData response data:", data)
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: Failed to fetch detection data`)
-      }
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid data format received from server")
+    }
 
-      const data = await response.json()
-      console.log('Fetched data:', data)
-      
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid data format received from server')
-      }
-      
-      setDetectionData(data)
-      processAnalytics(data)
-      setLoading(false)
-    } catch (error) {
-      console.error("Failed to fetch detection data:", error)
-      
-      if (retryCount < 2) {
-        // Retry up to 2 times
-        setTimeout(() => {
-          fetchDetectionData(retryCount + 1)
-        }, 2000 * (retryCount + 1)) // Exponential backoff
+    setDetectionData(data)
+    processAnalytics(data)
+    setLoading(false)
+  } catch (error) {
+    console.error("Failed to fetch detection data:", error)
+    console.log("Error name:", error.name)
+    console.log("Error message:", error.message)
+
+    if (retryCount < 2) {
+      setTimeout(() => {
+        fetchDetectionData(retryCount + 1)
+      }, 2000 * (retryCount + 1))
+    } else {
+      let errorMessage = "Failed to load detection data. "
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        errorMessage += "Please check your internet connection and ensure the server is running."
+      } else if (error.message.includes('timeout')) {
+        errorMessage += "Request timed out. Please try again."
       } else {
-        let errorMessage = "Failed to load detection data. "
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          errorMessage += "Please check your internet connection and ensure the server is running."
-        } else if (error.message.includes('timeout')) {
-          errorMessage += "Request timed out. Please try again."
-        } else {
-          errorMessage += error.message
-        }
-        setError(errorMessage)
-        setLoading(false)
+        errorMessage += error.message
       }
+      setError(errorMessage)
+      setLoading(false)
     }
   }
+}
 
   // Alternative fetchDetectionData with timeout implementation
   const fetchDetectionDataWithTimeout = async (retryCount = 0) => {
