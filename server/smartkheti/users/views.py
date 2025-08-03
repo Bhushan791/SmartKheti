@@ -123,7 +123,7 @@ class VeriifyOTPAndChangePasswordView(APIView):
 
 
 def home(reqeust):
-    return HttpResponse("Smartkheti APIS Laoded Successfully, Good to Go!  APIS-CREATED-BY: << BHUSHAN >>")
+    return HttpResponse("Smartkheti APIS Laoded Successfully, Good to Go!  APIS-CREATED-BY: <<< BHUSHAN >>>")
 
 
 
