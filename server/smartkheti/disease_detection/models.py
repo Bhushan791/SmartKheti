@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 
 class DiseaseInfo(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     crop = models.CharField(max_length=50)
     short_remedy = models.TextField()
     treatment = models.TextField()

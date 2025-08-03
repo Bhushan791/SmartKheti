@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { userAPI } from "../../common/api"
 import { auth } from "../../common/auth"
 
@@ -165,23 +166,32 @@ const EnhancedLogin = () => {
         <div className="absolute bottom-20 right-10 w-24 h-24 bg-amber-200 rounded-full opacity-30 animate-bounce"></div>
       </div>
 
+      {/* Back Button */}
+      <Link
+        to="/"
+        className="fixed top-6 left-6 z-10 flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-green-600 px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span className="font-medium">Back to Home</span>
+      </Link>
+
       <div className="relative w-full max-w-md">
         {/* Main Login Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           {/* Header */}
           <div className="text-center mb-8">
-<div className="text-center mb-8">
-  <div className="w-24 h-24 mx-auto mb-4">
-    <img 
-      src="/sklogo.png" 
-      alt="SmartKheti Logo" 
-      className="w-full h-full object-contain drop-shadow-lg"
-    />
-  </div>
-  <h1 className="text-3xl font-bold text-gray-800 mb-2">SmartKheti</h1>
-  <h2 className="text-xl font-semibold text-green-700 mb-2">Farmer Login</h2>
-  <p className="text-gray-600">Welcome back to SmartKheti</p>
-</div>
+            <div className="w-24 h-24 mx-auto mb-4">
+              <img 
+                src="/sklogo.png" 
+                alt="SmartKheti Logo" 
+                className="w-full h-full object-contain drop-shadow-lg"
+              />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">SmartKheti</h1>
+            <h2 className="text-xl font-semibold text-green-700 mb-2">Farmer Login</h2>
+            <p className="text-gray-600">Welcome back to SmartKheti</p>
           </div>
 
           {/* Message Display */}

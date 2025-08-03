@@ -26,7 +26,7 @@ const EnhancedFarmerDashboard = () => {
   const [editingListing, setEditingListing] = useState(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [message, setMessage] = useState("")
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
 
   useEffect(() => {
     const initDashboard = async () => {
@@ -305,7 +305,6 @@ const EnhancedFarmerDashboard = () => {
     <div className="space-y-8">
       {/* Analytics Section */}
       <DetectionAnalytics />
-
       {/* News Section */}
       <LatestNews />
     </div>
@@ -337,129 +336,150 @@ const EnhancedFarmerDashboard = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-emerald-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between relative z-50">
-        <button
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <h1 className="text-lg sm:text-xl font-bold text-green-800">🌾 SmartKheti</h1>
-        <div className="w-10"></div>
-      </div>
-
-      <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <div
-          className={`${
-            sidebarCollapsed ? "-translate-x-full lg:translate-x-0" : "translate-x-0"
-          } fixed inset-y-0 left-0 z-40 w-64 sm:w-72 bg-gradient-to-b from-gray-900 to-gray-800 text-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0`}
-        >
-          {/* Logo */}
-          <div className="p-4 sm:p-6 border-b border-gray-700">
-            <h1 className="text-xl sm:text-2xl font-bold text-center text-amber-400 mb-2">🌾 SmartKheti</h1>
-            <p className="text-center text-gray-300 text-xs sm:text-sm">Farmer Dashboard</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-emerald-50 flex">
+      {/* Fixed Sidebar - Shows/Hides completely */}
+      <div
+        className={`${
+          sidebarCollapsed ? "w-0" : "w-64 sm:w-72"
+        } fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white transform transition-all duration-300 ease-in-out shadow-2xl border-r border-gray-700 overflow-hidden`}
+      >
+        {/* Enhanced Logo Section */}
+        <div className="p-4 sm:p-6 border-b border-gray-700 bg-gradient-to-r from-green-800 to-emerald-800">
+          <div className="flex justify-center items-center gap-3 mb-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <img src="/sklogo.png" alt="SmartKheti Logo" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white whitespace-nowrap">SmartKheti</h1>
           </div>
+          <p className="text-center text-green-100 text-xs sm:text-sm font-medium">Farmer Dashboard</p>
+        </div>
 
-          {/* User Info */}
-          <div className="p-4 sm:p-6 border-b border-gray-700">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
-                👤
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white truncate text-sm sm:text-base">
-                  {user?.first_name} {user?.last_name}
-                </p>
-                <p className="text-gray-300 text-xs sm:text-sm truncate">{user?.phone}</p>
+        {/* Enhanced User Info */}
+        <div className="p-4 sm:p-6 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 shadow-lg border-2 border-green-400">
+              👤
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-white truncate text-sm sm:text-base">
+                {user?.first_name} {user?.last_name}
+              </p>
+              <p className="text-green-200 text-xs sm:text-sm truncate">{user?.phone}</p>
+              <div className="mt-1">
+                <span className="inline-block bg-green-600 text-green-100 px-2 py-1 rounded-full text-xs font-semibold">
+                  Active Farmer
+                </span>
               </div>
             </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-3 sm:p-4 overflow-y-auto">
-            <div className="space-y-2">
-              {sidebarItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveSection(item.id)
-                    setSidebarCollapsed(true)
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base ${
-                    activeSection === item.id
-                      ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-105"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                  }`}
-                >
-                  <span className="text-lg sm:text-xl flex-shrink-0">{item.icon}</span>
-                  <span className="font-medium truncate">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </nav>
-
-          {/* Logout */}
-          <div className="p-3 sm:p-4 border-t border-gray-700">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 sm:px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
-            >
-              <span className="text-lg sm:text-xl flex-shrink-0">🚪</span>
-              <span className="truncate">Logout</span>
-            </button>
           </div>
         </div>
 
-        {/* Overlay for mobile */}
-        {!sidebarCollapsed && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-            onClick={() => setSidebarCollapsed(true)}
-          ></div>
-        )}
+        {/* Enhanced Navigation */}
+        <nav className="flex-1 p-3 sm:p-4 overflow-y-auto">
+          <div className="space-y-2">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-300 text-sm sm:text-base group relative overflow-hidden ${
+                  activeSection === item.id
+                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl transform scale-105 border border-green-400"
+                    : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-700 hover:to-gray-600 hover:text-white hover:shadow-lg hover:scale-102"
+                }`}
+              >
+                {/* Active indicator */}
+                {activeSection === item.id && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-300 rounded-r-full"></div>
+                )}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
-          {/* Header */}
-          <div className="bg-white shadow-lg p-4 lg:p-6 sticky top-0 z-20 border-b border-gray-200">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4 min-w-0">
-                <button
-                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                  className="lg:hidden p-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-colors flex-shrink-0"
+                <span className="text-xl sm:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  {item.icon}
+                </span>
+                <span className="font-semibold truncate whitespace-nowrap">{item.label}</span>
+
+                {/* Hover effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Enhanced Logout */}
+        <div className="p-3 sm:p-4 border-t border-gray-700 bg-gradient-to-r from-gray-800 to-gray-700">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-sm sm:text-base group"
+          >
+            <span className="text-xl sm:text-2xl flex-shrink-0 group-hover:rotate-12 transition-transform duration-300">
+              🚪
+            </span>
+            <span className="truncate whitespace-nowrap">Logout</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Overlay - Only for mobile */}
+      {!sidebarCollapsed && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 z-40 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarCollapsed(true)}
+        ></div>
+      )}
+
+      {/* Main Content Area - Expands to full width when sidebar is hidden */}
+      <div
+        className={`${
+          sidebarCollapsed ? "ml-0" : "ml-64 sm:ml-72"
+        } flex-1 transition-all duration-300 ease-in-out min-h-screen flex flex-col`}
+      >
+        {/* Enhanced Header */}
+        <div className="bg-white shadow-xl p-4 lg:p-6 sticky top-0 z-30 border-b border-gray-200 backdrop-blur-sm bg-white/95">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="p-3 rounded-xl bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 hover:from-green-200 hover:to-emerald-200 transition-all duration-300 flex-shrink-0 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <svg
+                  className={`w-6 h-6 transition-transform duration-300 ${sidebarCollapsed ? "rotate-0" : "rotate-180"}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-green-800 truncate">
-                  {activeSection === "marketplace" && "🛒 Marketplace"}
-                  {activeSection === "disease-detection" && "🔬 Disease Detection"}
-                  {activeSection === "weather" && "🌤️ Weather System"}
-                  {activeSection === "reports" && "📊 Analytics & News"}
-                  {activeSection === "profile" && "👤 Profile"}
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center text-white text-lg shadow-lg">
+                  {activeSection === "marketplace" && "🛒"}
+                  {activeSection === "disease-detection" && "🔬"}
+                  {activeSection === "weather" && "🌤️"}
+                  {activeSection === "reports" && "📊"}
+                  {activeSection === "profile" && "👤"}
+                </div>
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 truncate">
+                  {activeSection === "marketplace" && "Marketplace"}
+                  {activeSection === "disease-detection" && "Disease Detection"}
+                  {activeSection === "weather" && "Weather System"}
+                  {activeSection === "reports" && "Analytics & News"}
+                  {activeSection === "profile" && "Profile"}
                 </h1>
               </div>
-              <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                <span className="hidden sm:block text-gray-600 text-sm lg:text-base truncate">
-                  Welcome, {user?.first_name}!
-                </span>
-                <div className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
-                  Farmer
-                </div>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              <span className="hidden sm:block text-gray-600 text-sm lg:text-base truncate font-medium">
+                Welcome, {user?.first_name}!
+              </span>
+              <div className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-3 py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg border border-green-200">
+                🌾 Farmer
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Content */}
-          <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
-            <div className="max-w-7xl mx-auto w-full">{renderContent()}</div>
-          </div>
+        {/* Content Area - Full width when sidebar hidden */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+          <div className="max-w-full mx-auto w-full">{renderContent()}</div>
         </div>
       </div>
 

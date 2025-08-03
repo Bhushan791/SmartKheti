@@ -1,9 +1,7 @@
 "use client"
 
-
 import { useState, useEffect } from "react"
-
-
+import { Link } from "react-router-dom"
 import { apiCall } from "../common/api"
 
 const Report = () => {
@@ -34,48 +32,52 @@ const Report = () => {
   useEffect(() => {
     fetchDetectionData()
   }, [])
-const fetchDetectionData = async (retryCount = 0) => {
-  setLoading(true)
-  setError("")
 
-  try {
-    // Use the generic apiCall helper with endpoint only (no full URL)
-    const { data, status } = await apiCall("/disease_detection/admin/detections/", {
-      method: "GET",
-    })
+  const fetchDetectionData = async (retryCount = 0) => {
+    setLoading(true)
+    setError("")
 
-    console.log("API fetchDetectionData response data:", data)
+    try {
+      // Use the generic apiCall helper with endpoint only (no full URL)
+      const { data, status } = await apiCall("/disease_detection/admin/detections/", {
+        method: "GET",
+      })
 
-    if (!Array.isArray(data)) {
-      throw new Error("Invalid data format received from server")
-    }
+      console.log("API fetchDetectionData response data:", data)
 
-    setDetectionData(data)
-    processAnalytics(data)
-    setLoading(false)
-  } catch (error) {
-    console.error("Failed to fetch detection data:", error)
-    console.log("Error name:", error.name)
-    console.log("Error message:", error.message)
-
-    if (retryCount < 2) {
-      setTimeout(() => {
-        fetchDetectionData(retryCount + 1)
-      }, 2000 * (retryCount + 1))
-    } else {
-      let errorMessage = "Failed to load detection data. "
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        errorMessage += "Please check your internet connection and ensure the server is running."
-      } else if (error.message.includes('timeout')) {
-        errorMessage += "Request timed out. Please try again."
-      } else {
-        errorMessage += error.message
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format received from server")
       }
-      setError(errorMessage)
+
+      setDetectionData(data)
+      processAnalytics(data)
       setLoading(false)
+    } catch (error) {
+      console.error("Failed to fetch detection data:", error)
+      console.log("Error name:", error.name)
+      console.log("Error message:", error.message)
+
+      if (retryCount < 2) {
+        setTimeout(
+          () => {
+            fetchDetectionData(retryCount + 1)
+          },
+          2000 * (retryCount + 1),
+        )
+      } else {
+        let errorMessage = "Failed to load detection data. "
+        if (error.name === "TypeError" && error.message.includes("fetch")) {
+          errorMessage += "Please check your internet connection and ensure the server is running."
+        } else if (error.message.includes("timeout")) {
+          errorMessage += "Request timed out. Please try again."
+        } else {
+          errorMessage += error.message
+        }
+        setError(errorMessage)
+        setLoading(false)
+      }
     }
   }
-}
 
   // Alternative fetchDetectionData with timeout implementation
   const fetchDetectionDataWithTimeout = async (retryCount = 0) => {
@@ -83,18 +85,16 @@ const fetchDetectionData = async (retryCount = 0) => {
     setError("")
 
     try {
-      const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL || 'http://127.0.0.1:8000/api'
-      
+      const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL || "http://127.0.0.1:8000/api"
+
       // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      )
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timeout")), 10000))
 
       // Create the fetch promise
       const fetchPromise = fetch(`${apiBaseUrl}/disease_detection/admin/detections/`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       })
 
@@ -106,28 +106,31 @@ const fetchDetectionData = async (retryCount = 0) => {
       }
 
       const data = await response.json()
-      console.log('Fetched data:', data)
-      
+      console.log("Fetched data:", data)
+
       if (!Array.isArray(data)) {
-        throw new Error('Invalid data format received from server')
+        throw new Error("Invalid data format received from server")
       }
-      
+
       setDetectionData(data)
       processAnalytics(data)
       setLoading(false)
     } catch (error) {
       console.error("Failed to fetch detection data:", error)
-      
+
       if (retryCount < 2) {
         // Retry up to 2 times
-        setTimeout(() => {
-          fetchDetectionDataWithTimeout(retryCount + 1)
-        }, 2000 * (retryCount + 1)) // Exponential backoff
+        setTimeout(
+          () => {
+            fetchDetectionDataWithTimeout(retryCount + 1)
+          },
+          2000 * (retryCount + 1),
+        ) // Exponential backoff
       } else {
         let errorMessage = "Failed to load detection data. "
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        if (error.name === "TypeError" && error.message.includes("fetch")) {
           errorMessage += "Please check your internet connection and ensure the server is running."
-        } else if (error.message.includes('timeout')) {
+        } else if (error.message.includes("timeout")) {
           errorMessage += "Request timed out. Please try again."
         } else {
           errorMessage += error.message
@@ -172,16 +175,15 @@ const fetchDetectionData = async (retryCount = 0) => {
     }
 
     const totalDetections = filteredData.length
-    
+
     // Check for healthy crops
     const healthyCount = filteredData.filter((item) => {
       const disease = item.detected_disease.toLowerCase()
-      return disease.includes("healthy") || 
-             disease.includes("normal") || 
-             disease.includes("good") ||
-             disease === "healthy"
+      return (
+        disease.includes("healthy") || disease.includes("normal") || disease.includes("good") || disease === "healthy"
+      )
     }).length
-    
+
     const diseasedCount = totalDetections - healthyCount
 
     // Extract crop types and diseases
@@ -214,7 +216,7 @@ const fetchDetectionData = async (retryCount = 0) => {
         else if (lowerDisease.includes("pepper")) cropType = "Pepper"
         else cropType = disease.split(/[_\s]/)[0] || "Unknown"
       }
-      
+
       cropCount[cropType] = (cropCount[cropType] || 0) + 1
 
       // Monthly and daily trends
@@ -228,7 +230,7 @@ const fetchDetectionData = async (retryCount = 0) => {
         month: "short",
         day: "numeric",
       })
-      
+
       if (!monthlyData[month]) {
         monthlyData[month] = { total: 0, healthy: 0, diseased: 0 }
       }
@@ -242,11 +244,12 @@ const fetchDetectionData = async (retryCount = 0) => {
       monthlyData[month].total++
       dailyData[day].total++
       diseasesByMonth[month][disease] = (diseasesByMonth[month][disease] || 0) + 1
-      
-      const isHealthy = disease.toLowerCase().includes("healthy") || 
-                       disease.toLowerCase().includes("normal") || 
-                       disease.toLowerCase().includes("good")
-      
+
+      const isHealthy =
+        disease.toLowerCase().includes("healthy") ||
+        disease.toLowerCase().includes("normal") ||
+        disease.toLowerCase().includes("good")
+
       if (isHealthy) {
         monthlyData[month].healthy++
         dailyData[day].healthy++
@@ -294,9 +297,7 @@ const fetchDetectionData = async (retryCount = 0) => {
       .slice(-30)
 
     // Recent detections
-    const recentDetections = filteredData
-      .sort((a, b) => new Date(b.detected_at) - new Date(a.detected_at))
-      .slice(0, 20)
+    const recentDetections = filteredData.sort((a, b) => new Date(b.detected_at) - new Date(a.detected_at)).slice(0, 20)
 
     setAnalytics({
       totalDetections,
@@ -419,13 +420,11 @@ const fetchDetectionData = async (retryCount = 0) => {
         const tableColumn = ["Date & Time", "Disease Detected", "Status"]
         const tableRows = []
 
-        analytics.recentDetections.slice(0, 10).forEach(detection => {
-          const statusText = detection.detected_disease.toLowerCase().includes("healthy") ? "Healthy" : "Disease Detected"
-          tableRows.push([
-            formatDate(detection.detected_at),
-            detection.detected_disease.replace(/_/g, " "),
-            statusText
-          ])
+        analytics.recentDetections.slice(0, 10).forEach((detection) => {
+          const statusText = detection.detected_disease.toLowerCase().includes("healthy")
+            ? "Healthy"
+            : "Disease Detected"
+          tableRows.push([formatDate(detection.detected_at), detection.detected_disease.replace(/_/g, " "), statusText])
         })
 
         doc.autoTable({
@@ -436,20 +435,21 @@ const fetchDetectionData = async (retryCount = 0) => {
           headStyles: { fillColor: [34, 139, 34], textColor: [255, 255, 255], fontStyle: "bold" },
           styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
           columnStyles: { 0: { cellWidth: 50 }, 1: { cellWidth: 70 }, 2: { cellWidth: 40 } },
-          didDrawPage: function (data) {
+          didDrawPage: (data) => {
             // Footer
             doc.setFontSize(10)
             doc.setTextColor(150)
             doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: "center" })
-          }
+          },
         })
         currentY = doc.autoTable.previous.finalY + 20
       }
 
       // Save PDF
-      const fileName = dateRange.useRange && dateRange.startDate && dateRange.endDate
-        ? `SmartKheti_Analytics_${dateRange.startDate}_to_${dateRange.endDate}.pdf`
-        : `SmartKheti_Analytics_${new Date().toISOString().split("T")[0]}.pdf`
+      const fileName =
+        dateRange.useRange && dateRange.startDate && dateRange.endDate
+          ? `SmartKheti_Analytics_${dateRange.startDate}_to_${dateRange.endDate}.pdf`
+          : `SmartKheti_Analytics_${new Date().toISOString().split("T")[0]}.pdf`
 
       doc.save(fileName)
       alert("PDF report generated successfully!")
@@ -460,12 +460,12 @@ const fetchDetectionData = async (retryCount = 0) => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
@@ -479,11 +479,27 @@ const fetchDetectionData = async (retryCount = 0) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50">
+      {/* Back Button */}
+      <Link
+        to="/"
+        className="fixed top-6 left-6 z-10 flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-gray-200"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Home
+      </Link>
+
       {/* Header */}
       <div className="bg-gradient-to-r from-green-800 to-emerald-800 text-white py-16">
         <div className="container mx-auto px-6">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4">🌾 SmartKheti Analytics Dashboard</h1>
+            <div className="flex justify-center items-center gap-3 mb-4">
+              <img src="/sklogo.png" alt="Rice Crop" className="w-10 h-10 object-contain" />
+              <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-center">
+                SmartKheti Analytics Dashboard
+              </h1>
+            </div>
             <p className="text-xl text-green-100 max-w-3xl mx-auto">
               Comprehensive crop disease detection analytics and reporting system
             </p>
@@ -567,7 +583,8 @@ const fetchDetectionData = async (retryCount = 0) => {
             <div className="text-8xl mb-6 animate-bounce">📊</div>
             <h3 className="text-3xl font-bold text-gray-700 mb-4">No Detection Data Available</h3>
             <p className="text-gray-500 mb-8 text-lg max-w-2xl mx-auto">
-              No crop disease detections have been performed yet. Start using the disease detection feature to generate analytics and reports.
+              No crop disease detections have been performed yet. Start using the disease detection feature to generate
+              analytics and reports.
             </p>
           </div>
         ) : (
@@ -677,6 +694,7 @@ const fetchDetectionData = async (retryCount = 0) => {
                   <table className="min-w-full">
                     <thead>
                       <tr className="border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Date & Time</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Disease Detected</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
                       </tr>
@@ -684,15 +702,17 @@ const fetchDetectionData = async (retryCount = 0) => {
                     <tbody>
                       {analytics.recentDetections.slice(0, 15).map((detection, index) => (
                         <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm text-gray-600">
-                            {formatDate(detection.detected_at)}
-                          </td>
+                          <td className="py-3 px-4 text-sm text-gray-600">{formatDate(detection.detected_at)}</td>
                           <td className="py-3 px-4 text-sm text-gray-800 font-medium">
                             {detection.detected_disease.replace(/_/g, " ")}
                           </td>
                           <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getDiseaseStatusColor(detection.detected_disease)}`}>
-                              {detection.detected_disease.toLowerCase().includes("healthy") ? "Healthy" : "Disease Detected"}
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-semibold ${getDiseaseStatusColor(detection.detected_disease)}`}
+                            >
+                              {detection.detected_disease.toLowerCase().includes("healthy")
+                                ? "Healthy"
+                                : "Disease Detected"}
                             </span>
                           </td>
                         </tr>
@@ -731,7 +751,7 @@ const fetchDetectionData = async (retryCount = 0) => {
                         </div>
                       </div>
                       <div className="mt-2 bg-gray-200 rounded-full h-1">
-                        <div 
+                        <div
                           className="bg-green-500 h-1 rounded-full transition-all duration-300"
                           style={{ width: `${day.healthPercentage}%` }}
                         ></div>
@@ -757,9 +777,9 @@ const fetchDetectionData = async (retryCount = 0) => {
                         analytics.detectionHeatmap.reduce((acc, item) => {
                           acc[item.date] = (acc[item.date] || 0) + 1
                           return acc
-                        }, {})
+                        }, {}),
                       )
-                        .sort(([,a], [,b]) => b - a)
+                        .sort(([, a], [, b]) => b - a)
                         .slice(0, 5)
                         .map(([date, count], index) => (
                           <div key={index} className="flex justify-between items-center">
@@ -796,11 +816,13 @@ const fetchDetectionData = async (retryCount = 0) => {
                         </div>
                         <div className="text-center">
                           <div className="text-2xl font-bold text-red-600">{month.diseased}</div>
-                          <div className="text-sm text-gray-600">Diseased ({(100 - parseFloat(month.healthPercentage)).toFixed(1)}%)</div>
+                          <div className="text-sm text-gray-600">
+                            Diseased ({(100 - Number.parseFloat(month.healthPercentage)).toFixed(1)}%)
+                          </div>
                         </div>
                       </div>
                       <div className="mt-3 bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-green-500 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${month.healthPercentage}%` }}
                         ></div>
@@ -815,9 +837,7 @@ const fetchDetectionData = async (retryCount = 0) => {
             <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-100">
               <div className="text-6xl mb-4">📄</div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Generate Detailed PDF Report</h3>
-              <p className="text-gray-600 mb-6">
-                Download a comprehensive PDF report with all analytics and insights
-              </p>
+              <p className="text-gray-600 mb-6">Download a comprehensive PDF report with all analytics and insights</p>
               <button
                 onClick={generatePDF}
                 className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 mx-auto"

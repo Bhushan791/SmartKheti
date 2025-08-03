@@ -1,6 +1,49 @@
 "use client"
-
 import { useState, useEffect } from "react"
+
+// Helper function to extract a user-friendly error message from various error formats
+const getErrorMessage = (error) => {
+  if (error.response && error.response.data) {
+    const responseData = error.response.data
+    if (typeof responseData === "string") {
+      // If the response data is a raw string (e.g., HTML error page)
+      return "An unexpected error occurred. Please try again later."
+    } else if (responseData.message) {
+      // If the response data has a 'message' property
+      return responseData.message
+    } else if (typeof responseData === "object") {
+      // If the response data is a nested JSON object (e.g., validation errors)
+      const messages = []
+      for (const key in responseData) {
+        if (Object.prototype.hasOwnProperty.call(responseData, key)) {
+          const value = responseData[key]
+          if (Array.isArray(value)) {
+            messages.push(`${key}: ${value.join(", ")}`)
+          } else if (typeof value === "object" && value !== null) {
+            // Handle nested objects, e.g., {"images":{"0":["..."]}}
+            for (const subKey in value) {
+              if (Object.prototype.hasOwnProperty.call(value, subKey)) {
+                const subValue = value[subKey]
+                if (Array.isArray(subValue)) {
+                  messages.push(`${key} ${subKey}: ${subValue.join(", ")}`)
+                } else {
+                  messages.push(`${key} ${subKey}: ${subValue}`)
+                }
+              }
+            }
+          } else {
+            messages.push(`${key}: ${value}`)
+          }
+        }
+      }
+      return messages.length > 0 ? messages.join("; ") : "An unknown error occurred."
+    }
+  } else if (error.message) {
+    // Generic error message from the Error object
+    return error.message
+  }
+  return "An unexpected error occurred. Please try again."
+}
 
 const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -15,8 +58,8 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
     images: [],
     video: null,
   })
-
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({}) // For client-side validation errors
+  const [apiError, setApiError] = useState("") // For API-related errors
   const [loading, setLoading] = useState(false)
   const [imagePreviews, setImagePreviews] = useState([])
   const [videoPreview, setVideoPreview] = useState(null)
@@ -34,10 +77,9 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
         category: listing.category || "",
         contact_number: listing.contact_number || "",
         optional_contact: listing.optional_contact || "",
-        images: [],
-        video: null,
+        images: [], // New images to be uploaded
+        video: null, // New video to be uploaded
       })
-
       // Set existing images and video
       if (listing.images && listing.images.length > 0) {
         setExistingImages(listing.images)
@@ -50,12 +92,10 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target
-
     if (type === "file") {
       if (name === "images") {
         const selectedFiles = Array.from(files)
         setFormData((prev) => ({ ...prev, images: selectedFiles }))
-
         // Create previews
         const previews = selectedFiles.map((file) => URL.createObjectURL(file))
         setImagePreviews(previews)
@@ -74,32 +114,32 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
 
   const validateForm = () => {
     const newErrors = {}
-
     if (!formData.crop_name.trim()) newErrors.crop_name = "Crop name is required"
     if (!formData.quantity.trim()) newErrors.quantity = "Quantity is required"
     if (!formData.rate.trim()) newErrors.rate = "Rate is required"
     if (!formData.location.trim()) newErrors.location = "Location is required"
     if (!formData.contact_number.trim()) newErrors.contact_number = "Contact number is required"
-
     // Validate rate is a number
     if (formData.rate && isNaN(formData.rate)) {
       newErrors.rate = "Rate must be a valid number"
     }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
+    setApiError("") // Clear any previous API errors
     if (!validateForm()) return
 
     setLoading(true)
     try {
-      await onSubmit(formData)
+      // Pass existing images/video and new files to onSubmit
+      await onSubmit({ ...formData, existingImages, existingVideo })
+      onClose() // Assuming successful submission closes the modal
     } catch (error) {
       console.error("Error updating listing:", error)
+      setApiError(getErrorMessage(error)) // Set the API error message
     } finally {
       setLoading(false)
     }
@@ -154,17 +194,42 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
             ×
           </button>
         </div>
-
         {/* Form Content */}
         <div className="max-h-[calc(95vh-120px)] overflow-y-auto">
           <form onSubmit={handleSubmit} className="p-6 lg:p-8 space-y-8">
+            {/* API Error Message Display */}
+            {apiError && (
+              <div className="bg-red-50 text-red-800 border border-red-200 p-4 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="font-medium">{apiError}</span>
+                </div>
+                <button onClick={() => setApiError("")} className="p-1 rounded-full hover:bg-red-100 text-red-800">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            )}
+
             {/* Basic Information Section */}
             <div className="bg-gray-50 p-6 rounded-2xl">
               <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <span className="text-2xl">🌾</span>
                 Basic Information
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Crop Name *</label>
@@ -192,7 +257,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     </p>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
                   <select
@@ -208,7 +272,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     ))}
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity *</label>
                   <input
@@ -235,7 +298,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     </p>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Rate (NPR) *</label>
                   <div className="relative">
@@ -270,7 +332,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                   )}
                 </div>
               </div>
-
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
                 <div className="relative">
@@ -315,7 +376,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                   </p>
                 )}
               </div>
-
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                 <textarea
@@ -328,14 +388,12 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                 />
               </div>
             </div>
-
             {/* Contact Information Section */}
             <div className="bg-blue-50 p-6 rounded-2xl">
               <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <span className="text-2xl">📞</span>
                 Contact Information
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Primary Contact Number *</label>
@@ -375,7 +433,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     </p>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Optional Contact</label>
                   <div className="relative">
@@ -401,7 +458,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                 </div>
               </div>
             </div>
-
             {/* Current Media Section */}
             {(existingImages.length > 0 || existingVideo) && (
               <div className="bg-purple-50 p-6 rounded-2xl">
@@ -409,7 +465,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                   <span className="text-2xl">📁</span>
                   Current Media
                 </h3>
-
                 {/* Existing Images */}
                 {existingImages.length > 0 && (
                   <div className="mb-6">
@@ -434,7 +489,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     </div>
                   </div>
                 )}
-
                 {/* Existing Video */}
                 {existingVideo && (
                   <div>
@@ -457,14 +511,12 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                 )}
               </div>
             )}
-
             {/* New Media Section */}
             <div className="bg-amber-50 p-6 rounded-2xl">
               <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <span className="text-2xl">📸</span>
                 Add New Media
               </h3>
-
               {/* New Images */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Add New Images</label>
@@ -484,7 +536,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     <p className="text-sm text-gray-500 mt-1">JPG, PNG up to 10MB each</p>
                   </label>
                 </div>
-
                 {/* New Image Previews */}
                 {imagePreviews.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -507,7 +558,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                   </div>
                 )}
               </div>
-
               {/* New Video */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -530,7 +580,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                     <p className="text-sm text-gray-500 mt-1">MP4, MOV up to 50MB</p>
                   </label>
                 </div>
-
                 {/* New Video Preview */}
                 {videoPreview && (
                   <div className="mt-4 relative">
@@ -550,7 +599,6 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
                 )}
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
               <button
@@ -599,5 +647,4 @@ const EnhancedEditListingForm = ({ listing, onSubmit, onClose }) => {
     </div>
   )
 }
-
 export default EnhancedEditListingForm

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { userAPI } from "../../common/api"
 
 const EnhancedRegister = () => {
@@ -197,24 +198,27 @@ const EnhancedRegister = () => {
         <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-emerald-200 rounded-full opacity-25 animate-pulse delay-1000"></div>
       </div>
 
+      {/* Back Button */}
+      <Link
+        to="/"
+        className="fixed top-6 left-6 z-10 flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-gray-200"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Home
+      </Link>
+
       <div className="relative max-w-4xl mx-auto">
         {/* Main Registration Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           {/* Header */}
           <div className="text-center mb-8">
-<div className="text-center mb-8">
-  <div className="w-24 h-24 mx-auto mb-4">
-    <img 
-      src="/sklogo.png" 
-      alt="SmartKheti Logo" 
-      className="w-full h-full object-contain drop-shadow-lg"
-    />
-  </div>
-  <h1 className="text-3xl font-bold text-gray-800 mb-2">SmartKheti</h1>
-  <h2 className="text-xl font-semibold text-green-700 mb-2">Farmer Login</h2>
-  <p className="text-gray-600">Welcome back to SmartKheti</p>
-</div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Farmer Account</h1>
+            <div className="w-24 h-24 mx-auto mb-4">
+              <img src="/sklogo.png" alt="SmartKheti Logo" className="w-full h-full object-contain drop-shadow-lg" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">SmartKheti</h1>
+            <h2 className="text-xl font-semibold text-green-700 mb-2">Create Farmer Account</h2>
             <p className="text-gray-600">Join the SmartKheti community</p>
           </div>
 
