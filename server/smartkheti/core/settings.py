@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
-
+import dj_database_url
 # Load environment variables from .env file
 load_dotenv()
 
@@ -87,25 +87,19 @@ TEMPLATES = [
 ]
 
 # DATABASE CONFIGURATION (PostgreSQL)
+# DATABASE CONFIGURATION (Supabase via DATABASE_URL)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
+print("DATABASE_URL:", os.environ.get("DATABASE_URL"))
+
+
 # DEBUG DATABASE CONFIG (for deploy or logs)
-import sys
-print("DEBUGGING DATABASE CONFIGURATION:", file=sys.stderr)
-print("DB_NAME:", os.environ.get('DB_NAME'), file=sys.stderr)
-print("DB_USER:", os.environ.get('DB_USER'), file=sys.stderr)
-print("DB_PASSWORD:", "******" if os.environ.get('DB_PASSWORD') else None, file=sys.stderr)
-print("DB_HOST:", os.environ.get('DB_HOST'), file=sys.stderr)
-print("DB_PORT:", os.environ.get('DB_PORT'), file=sys.stderr)
 
 # REST FRAMEWORK SETTINGS
 REST_FRAMEWORK = {
@@ -116,7 +110,7 @@ REST_FRAMEWORK = {
 
 # JWT SETTINGS
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,

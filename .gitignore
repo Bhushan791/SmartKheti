@@ -1,7 +1,9 @@
 server/smartkheti/.env
-server/smartkheti/env_new
+server/smartkheti/env_new/
 **/__pycache__/
 *.pyc
 server/smartkheti/mediafiles/
+server/smartkheti/media/
+server/smartkheti/runtime.txt
 server/smartkheti/**/migrations/__pycache__/
 *.sqlite3
